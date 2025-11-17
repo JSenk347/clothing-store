@@ -1,24 +1,33 @@
 const DATA_URL = 'https://gist.githubusercontent.com/rconnolly/d37a491b50203d66d043c26f33dbd798/raw/37b5b68c527ddbe824eaed12073d266d5455432a/clothing-compact.json';
 
 /**
- * Fetches data from the specified URL and updates the UI status.
+ * Fetches data from the specified URL
  */
-async function fetchData(items) {
-    console.log(`Attempting to fetch data from: ${DATA_URL}`);
+async function fetchData() {
+    console.log(`Attempting to fetch data from: ${DATA_URL}`);  
 
-    const i = 0;
-    fetch(DATA_URL)
-        .then(response => response.json())
-        .then(data => {
-            items = data;
-            console.log("Data fetched");
-            console.table(items.slice(0,5));
-        })
-        .catch(error => {
-            console.error("Failed to fetch or process data:", error)
-        });
+    let products = [];
+
+    try {
+        const productsStr = localStorage.getItem("products"); // attempting to get data from localStorage
+        if (!productsStr) { // if projects not in localStorage
+            const resp = await fetch(DATA_URL); // fetching data, getting response
+            if (resp.ok) {
+                const data = await resp.json(); // turning response into json
+                localStorage.setItem("products", JSON.stringify(data)); // put products into localStorage
+                products = data;
+            } else {
+                throw new Error(`Failed to fetch data. HTTP Status: ${resp.status}`);
+            }
+        } else {
+           products = JSON.parse(productsStr); // parse the products string from localStorage
+        }
+        // need a function to work with the data
+        console.table(products.slice(0, 5));
+    } catch(error) {
+        console.error("Error fetching data", error.message);
+    }
 }
 
 // Start the fetching process when the page loads
-const items = new Array();
-document.addEventListener('DOMContentLoaded', fetchData(items));
+document.addEventListener('DOMContentLoaded', fetchData());
