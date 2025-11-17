@@ -17,7 +17,7 @@ async function fetchData() {
                 localStorage.setItem("products", JSON.stringify(data)); // put products into localStorage
                 products = data;
             } else {
-                throw new Error(`Failed to fetch data. HTTP Status: ${resp.status}`);
+                console.error("Error fetching data", error.message);
             }
         } else {
            products = JSON.parse(productsStr); // parse the products string from localStorage
@@ -30,4 +30,6 @@ async function fetchData() {
 }
 
 // Start the fetching process when the page loads
-document.addEventListener('DOMContentLoaded', fetchData());
+document.addEventListener('DOMContentLoaded', () => {
+    fetchData();
+});
