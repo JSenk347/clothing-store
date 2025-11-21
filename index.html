@@ -3,38 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-
-    <!-- Enables Tailwind CSS -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STYLEHUB - SPA Store</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace; 
+            background-color: #ffffff;
+            color: #000000;
+        }
+        
+        /* View Switching */
+        .hidden { display: none !important; }
+        .visible { display: block !important; }
+        
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        button, input, select, div, dialog, nav {
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+        
+        button:focus, input:focus, select:focus {
+            outline: 2px solid black;
+            outline-offset: 2px;
+        }
+    </style>
+
+    <script src="js/app.js" defer></script>
 </head>
-<body>
+<body class="flex flex-col min-h-screen">
 
-<header class="border-b">
-  <div class="flex items-center justify-between h-16 px-6">
-    
-    <img src="https://placehold.co/50x50">
-    
-    <nav class="space-x-4 font-semibold text-sm">
-      <a href="#home">Home</a>
-      <a href="#women">Women</a>
-      <a href="#men">Men</a>
-      <a href="#browse">Browse</a>
-      <a href="#about">About</a>
-    </nav>
-    
-    <div class="flex items-center space-x-2 font-semibold text-sm">
-      <span>Cart</span>
-      <span class="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white text-xs rounded-full">8</span>
-    </div>
-  </div>
-</header>
+    <header class="sticky top-0 z-50 bg-white border-b-2 border-black">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                
+                <a href="#" data-view="home" class="nav-link text-2xl font-bold tracking-tight uppercase border-2 border-black px-2 py-1">
+                    STYLEHUB
+                </a>
+
+                <nav id="main-nav" class="md:flex space-x-8 font-bold uppercase text-sm">
+                    <a href="#" data-view="home" class="nav-link hover:underline">Home</a>
+                    <a href="#" data-filter-gender="womens" class="nav-gender hover:underline">Women</a>
+                    <a href="#" data-filter-gender="mens" class="nav-gender hover:underline">Men</a>
+                    <a href="#" data-view="browse" class="nav-link hover:underline">Browse</a>
+                    <button id="btn-about" class="hover:underline font-bold uppercase">About</button>
+                </nav>
+
+                <div class="flex items-center gap-4">
+                    <div id="btn-cart" class="cursor-pointer flex items-center gap-2 hover:underline">
+                        <span class="font-bold uppercase">Cart</span>
+                        <span id="cart-count" class="bg-black text-white text-xs font-bold h-6 w-6 flex items-center justify-center">0</span>
+                    </div>
+
+                    <button id="btn-mobile-menu" class="md:hidden border-2 border-black px-2 py-1 font-bold uppercase text-xs">
+                        Menu
+                    </button>
+                </div>
+            </div>
+
+            <nav id="mobile-menu" class="hidden border-t-2 border-black py-4 bg-white">
+                <a href="#" data-view="home" class="nav-link block py-2 font-bold uppercase hover:bg-gray-100">Home</a>
+                <a href="#" data-filter-gender="womens" class="nav-gender block py-2 font-bold uppercase hover:bg-gray-100">Women</a>
+                <a href="#" data-filter-gender="mens" class="nav-gender block py-2 font-bold uppercase hover:bg-gray-100">Men</a>
+                <a href="#" data-view="browse" class="nav-link block py-2 font-bold uppercase hover:bg-gray-100">Browse</a>
+                <button id="btn-mobile-about" class="block w-full text-left py-2 font-bold uppercase hover:bg-gray-100">About</button>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-container" class="flex-grow container mx-auto px-4 py-8">
+
+        <article id="view-home" class="view-section visible">
+            <section class="border-2 border-black p-12 text-center mb-12">
+                <h1 class="text-4xl font-black uppercase mb-4">Summer Collection 2025</h1>
+                <div class="flex justify-center gap-4">
+                    <button data-filter-gender="womens" class="nav-gender bg-black text-white px-8 py-3 font-bold uppercase border-2 border-black hover:bg-white hover:text-black">Shop Women</button>
+                    <button data-filter-gender="mens" class="nav-gender bg-white text-black px-8 py-3 font-bold uppercase border-2 border-black hover:bg-black hover:text-white">Shop Men</button>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-black mb-6 uppercase border-b-2 border-black pb-2">Featured Categories</h2>
+                <div id="home-categories-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    </div>
+            </section>
+        </article>
+
+        <article id="view-gender" class="view-section hidden">
+            <section id="gender-hero" class="border-2 border-black p-12 text-center mb-10">
+                <h1 id="gender-title" class="text-4xl font-black uppercase">Category</h1>
+            </section>
+            <section>
+                <h2 class="text-xl font-black mb-6 uppercase border-b-2 border-black pb-2">Shop by Category</h2>
+                <div id="gender-categories" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            </section>
+        </article>
+
+        <article id="view-browse" class="view-section hidden">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <aside class="w-full lg:w-1/4 shrink-0">
+                    <div class="border-2 border-black p-4 sticky top-24">
+                        <div class="flex justify-between items-center mb-4 border-b-2 border-black pb-2">
+                            <h2 class="font-bold uppercase">Filters</h2>
+                            <button id="btn-clear-filters" class="text-xs underline font-bold uppercase">Clear</button>
+                        </div>
+                        <div class="space-y-6">
+                            <section>
+                                <h3 class="font-bold mb-2 text-xs uppercase">Gender</h3>
+                                <div id="filter-gender" class="space-y-1"></div>
+                            </section>
+                            <section>
+                                <h3 class="font-bold mb-2 text-xs uppercase">Categories</h3>
+                                <div id="filter-categories" class="space-y-1 max-h-48 overflow-y-auto"></div>
+                            </section>
+                            <section>
+                                <h3 class="font-bold mb-2 text-xs uppercase">Colors</h3>
+                                <div id="filter-colors" class="flex flex-wrap gap-2"></div>
+                            </section>
+                            <section>
+                                <h3 class="font-bold mb-2 text-xs uppercase">Size</h3>
+                                <div id="filter-sizes" class="grid grid-cols-4 gap-2"></div>
+                            </section>
+                        </div>
+                    </div>
+                </aside>
+
+                <section class="w-full lg:w-3/4">
+                    <div class="flex justify-between items-center mb-6 border-2 border-black p-4">
+                        <span id="results-count" class="text-sm font-bold uppercase">0 Results</span>
+                        <div class="flex items-center gap-2">
+                            <label for="sort-select" class="text-sm font-bold uppercase">Sort:</label>
+                            <select id="sort-select" class="border-2 border-black p-1 text-sm font-bold uppercase">
+                                <option value="name_asc">Name (A-Z)</option>
+                                <option value="price_asc">Price (Low-High)</option>
+                                <option value="price_desc">Price (High-Low)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="active-filters" class="flex flex-wrap gap-2 mb-4"></div>
+                    <div id="browse-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    
+                    <div id="no-results" class="hidden text-center py-12 border-2 border-black border-dashed">
+                        <p class="text-lg font-bold uppercase">No products match.</p>
+                        <button id="btn-clear-filters-empty" class="mt-4 underline font-bold uppercase">Clear Filters</button>
+                    </div>
+                </section>
+            </div>
+        </article>
+
+        <article id="view-product" class="view-section hidden">
+            <nav class="text-sm mb-6 border-b-2 border-black pb-2 font-mono">
+                <a href="#" data-view="home" class="nav-link hover:underline">HOME</a> / 
+                <span id="crumb-gender" class="uppercase"></span> / 
+                <span id="crumb-category" class="uppercase"></span> / 
+                <span id="crumb-title" class="font-bold uppercase"></span>
+            </nav>
+
+            <section class="grid md:grid-cols-2 gap-10 mb-10">
+                <figure class="border-2 border-black p-2">
+                    <div class="aspect-[3/4] bg-gray-100 relative">
+                        <div class="placeholder-content text-2xl" id="p-img-text">IMG</div>
+                    </div>
+                </figure>
+
+                <div class="space-y-6">
+                    <div>
+                        <h1 id="p-title" class="text-3xl font-black uppercase mb-2">Title</h1>
+                        <p id="p-price" class="text-2xl font-bold">$0.00</p>
+                    </div>
+                    <div class="prose font-mono text-sm border-y-2 border-black py-4" id="p-desc"></div>
+                    
+                    <div>
+                        <span class="font-bold block mb-2 uppercase">Material</span>
+                        <span id="p-material" class="border border-black px-2 py-1 text-sm">Cotton</span>
+                    </div>
+
+                    <div>
+                        <label class="font-bold block mb-2 uppercase">Color</label>
+                        <div id="p-colors" class="flex gap-2"></div>
+                        <input type="hidden" id="selected-color">
+                    </div>
+
+                    <div>
+                        <label class="font-bold block mb-2 uppercase">Size</label>
+                        <div id="p-sizes" class="flex gap-2"></div>
+                        <input type="hidden" id="selected-size">
+                    </div>
+
+                    <div>
+                        <label class="font-bold block mb-2 uppercase">Quantity</label>
+                        <input type="number" id="p-qty" min="1" value="1" class="w-20 border-2 border-black p-2 text-center font-bold">
+                    </div>
+
+                    <button id="btn-add-cart" class="w-full bg-black text-white py-4 font-bold uppercase hover:bg-white hover:text-black border-2 border-black">Add to Cart</button>
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-xl font-black mb-6 uppercase border-b-2 border-black pb-2">Related Products</h3>
+                <div id="related-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+            </section>
+        </article>
+
+        <article id="view-cart" class="view-section hidden">
+            <h1 class="text-3xl font-black mb-8 uppercase border-b-4 border-black pb-4">Shopping Cart</h1>
+
+            <div id="cart-empty-msg" class="hidden text-center py-16 border-2 border-black">
+                <p class="text-xl font-bold mb-6 uppercase">Your cart is empty.</p>
+                <button data-view="browse" class="nav-link bg-black text-white px-6 py-2 font-bold uppercase hover:bg-white hover:text-black border-2 border-black">Continue Shopping</button>
+            </div>
+
+            <div id="cart-content" class="flex flex-col lg:flex-row gap-8">
+                <section class="w-full lg:w-2/3 border-2 border-black">
+                    <div class="hidden md:grid grid-cols-12 gap-4 bg-black text-white p-4 font-bold text-sm uppercase">
+                        <div class="col-span-6">Item</div>
+                        <div class="col-span-2 text-center">Price</div>
+                        <div class="col-span-2 text-center">Qty</div>
+                        <div class="col-span-2 text-right">Subtotal</div>
+                    </div>
+                    <div id="cart-items-container" class="divide-y-2 divide-black"></div>
+                </section>
+
+                <section class="w-full lg:w-1/3 border-2 border-black p-6 space-y-6 sticky top-24">
+                    <h3 class="text-lg font-black border-b-2 border-black pb-2 uppercase">Totals</h3>
+                    <div>
+                        <label class="block text-sm font-bold mb-1 uppercase">Destination</label>
+                        <select id="ship-country" class="w-full border-2 border-black p-2 font-bold">
+                            <option value="CA">Canada (CA)</option>
+                            <option value="US">United States (US)</option>
+                            <option value="INT">International</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1 uppercase">Method</label>
+                        <select id="ship-method" class="w-full border-2 border-black p-2 font-bold">
+                            <option value="standard">Standard</option>
+                            <option value="express">Express</option>
+                            <option value="priority">Priority</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2 pt-4 border-t-2 border-black font-mono">
+                        <div class="flex justify-between"><span class="uppercase">Merch</span><span id="summary-merch">$0.00</span></div>
+                        <div class="flex justify-between"><span class="uppercase">Shipping</span><span id="summary-ship">$0.00</span></div>
+                        <div class="flex justify-between"><span class="uppercase">Tax (5%)</span><span id="summary-tax">$0.00</span></div>
+                        <div class="flex justify-between text-xl font-bold pt-2 border-t-2 border-black mt-2"><span class="uppercase">Total</span><span id="summary-total">$0.00</span></div>
+                    </div>
+                    <button id="btn-checkout" class="w-full bg-black text-white py-3 font-black uppercase hover:bg-white hover:text-black border-2 border-black">Checkout</button>
+                </section>
+            </div>
+        </article>
+    </main>
+
+    <footer class="bg-black text-white pt-12 pb-6 border-t-4 border-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div class="mb-4 md:mb-0">
+                     <span class="text-2xl font-bold uppercase border-2 border-white px-2 py-1">STYLEHUB</span>
+                     <p class="text-gray-400 text-sm mt-2 font-mono">COMP 3612 Assignment 2</p>
+                </div>
+                <div class="flex space-x-6 font-bold uppercase">
+                    <a href="#" class="hover:underline">GitHub</a>
+                    <a href="#" class="hover:underline">Twitter</a>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6 text-center text-sm text-gray-500 font-mono">
+                &copy; <time datetime="2025">2025</time> StyleHub Inc.
+            </div>
+        </div>
+    </footer>
 
 
-<footer class = "p"></footer>
-<!-- Generated content goes here -->
 
-<script src="data.js"></script>
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
 </body>
 </html>
