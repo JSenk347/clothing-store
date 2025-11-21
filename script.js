@@ -70,19 +70,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 switchView('browse');
             }
 
-            // Category Cards (Delegation for Home and Gender views)
+            // category card links
             if (e.target.closest('.cat-card')) {
                 const card = e.target.closest('.cat-card');
                 const cat = card.dataset.category;
 
-                // Navigate to browse with this category pre-selected
-                // If we are currently in a gender view, preserve that gender filter
-                // If on home page, maybe clear gender or infer it? Simplest is to just filter by category.
+                // if we are currently in a gender view, preserve that gender filter
+                // if on home page, just filter by category.
+                // note: if we came from Gender view, filters.gender is already set.
+                // if from Home, filters.gender might be null.
 
-                // Note: If we came from Gender view, filters.gender is already set.
-                // If from Home, filters.gender might be null.
-
-                // We need to reset OTHER filters but keep gender if set, and add this category
+                // reset other filters but keep gender if set, and add this category
                 const currentGender = filters.gender;
                 clearFilters(false);
                 filters.gender = currentGender;
@@ -92,13 +90,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 switchView('browse');
             }
 
-            // About Dialog
+            // about dialog
             const btnAbout = document.querySelector('#btn-about');
             const dialog = document.querySelector('#about-dialog');
             const btnClose = document.querySelector('#btn-close-about');
             const btnCloseBtm = document.querySelector('#btn-close-about-bottom');
 
-            if (btnAbout) btnAbout.addEventListener('click', () => dialog.showModal());
+            if (btnAbout) btnAbout.addEventListener('click', () => dialog.showModal()); // https://www.w3schools.com/jsreF/met_dialog_showmodal.asp
             if (btnClose) btnClose.addEventListener('click', () => dialog.close());
             if (btnCloseBtm) btnCloseBtm.addEventListener('click', () => dialog.close());
 
@@ -175,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function clearFilters() {};
 
-    
+
 
     // --- function calls ---
     init();
