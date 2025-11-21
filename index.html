@@ -15,16 +15,16 @@
         }
         
         /* view switching */
-        .hidden { display: none !important; }
-        .visible { display: block !important; }
+        .hidden { display: none; }
+        .visible { display: block; }
         
         dialog::backdrop {
             background: rgba(0, 0, 0, 0.8);
         }
 
         button, input, select, div, dialog, nav {
-            border-radius: 0 !important;
-            box-shadow: none !important;
+            border-radius: 0;
+            box-shadow: none;
         }
         
         button:focus, input:focus, select:focus {
@@ -178,6 +178,8 @@
             <p class="text-sm text-center uppercase mt-2 font-bold underline decoration-2 underline-offset-4">Shop Now</p>
         </div>
     </template>
+
+    
 
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 

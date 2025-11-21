@@ -19,13 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchData() {
         console.log(`Attempting to fetch data...`);
         try {
-            const productsStr = localStorage.getItem("products"); 
-            
+            const productsStr = localStorage.getItem("products");
+
             if (!productsStr) {
-                const resp = await fetch(DATA_URL); 
+                const resp = await fetch(DATA_URL);
                 if (resp.ok) {
-                    const data = await resp.json(); 
-                    localStorage.setItem("products", JSON.stringify(data)); 
+                    const data = await resp.json();
+                    localStorage.setItem("products", JSON.stringify(data));
                     products = data;
                     console.log("Data loaded from API");
                 } else {
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupEventListeners() {
         // handle clicks for nav buttons
         document.querySelector('body').addEventListener('click', (e) => {
-            
+
             // gender links
             if (e.target.matches('.nav-gender')) {
                 e.preventDefault();
@@ -61,6 +61,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 switchView('home');
             }
+
+            // browse link
+            if (e.target.dataset.view === 'browse') {
+                e.preventDefault();
+                clearFilters(false); // Reset all when clicking Browse directly
+                renderBrowseView();
+                switchView('browse');
+            }
+
+            // Category Cards (Delegation for Home and Gender views)
+            if (e.target.closest('.cat-card')) {
+                const card = e.target.closest('.cat-card');
+                const cat = card.dataset.category;
+
+                // Navigate to browse with this category pre-selected
+                // If we are currently in a gender view, preserve that gender filter
+                // If on home page, maybe clear gender or infer it? Simplest is to just filter by category.
+
+                // Note: If we came from Gender view, filters.gender is already set.
+                // If from Home, filters.gender might be null.
+
+                // We need to reset OTHER filters but keep gender if set, and add this category
+                const currentGender = filters.gender;
+                clearFilters(false);
+                filters.gender = currentGender;
+                filters.category = [cat];
+
+                renderBrowseView();
+                switchView('browse');
+            }
+
+            // About Dialog
+            const btnAbout = document.querySelector('#btn-about');
+            const dialog = document.querySelector('#about-dialog');
+            const btnClose = document.querySelector('#btn-close-about');
+            const btnCloseBtm = document.querySelector('#btn-close-about-bottom');
+
+            if (btnAbout) btnAbout.addEventListener('click', () => dialog.showModal());
+            if (btnClose) btnClose.addEventListener('click', () => dialog.close());
+            if (btnCloseBtm) btnCloseBtm.addEventListener('click', () => dialog.close());
+
+
         });
     }
 
@@ -71,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function switchView(viewId) {
         // select all view articles
         const views = document.querySelectorAll('.view-section');
-        
+
         for (const view of views) {
             view.classList.add('hidden');
             view.classList.remove('visible');
@@ -82,9 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
             target.classList.remove('hidden');
             target.classList.add('visible');
         }
-        
+
         // scroll to top
-        window.scrollTo(0,0);
+        window.scrollTo(0, 0);
     }
 
     /**
@@ -94,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderGenderView(gender) {
         // filter gender
         const genderProducts = products.filter(p => p.gender === gender);
-        
+
         const categories = [...new Set(genderProducts.map(p => p.category))];
 
         // getting title element
@@ -109,16 +151,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (const cat of categories) {
             const clone = template.content.cloneNode(true);
-            
+
             // populate clone data
             clone.querySelector('.cat-title').textContent = cat;
-            clone.querySelector('.cat-title-placeholder').textContent = cat; 
-            
-            
-            
+            clone.querySelector('.cat-title-placeholder').textContent = cat;
+
+
+
             container.appendChild(clone);
         }
     }
+
+    function renderBrowseView() {
+        populateFilterSidebars();
+        applyFilters();
+    }
+    
+    function populateFilterSidebars(){
+        function createCheckbox(type, value, label){};
+    };
+
+    function applyFilters() {};
+
+    function clearFilters() {};
+
+    
 
     // --- function calls ---
     init();
