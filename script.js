@@ -90,6 +90,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 switchView('browse');
             }
 
+            // clear all filters
+            const btnClear = document.querySelector('#btn-clear-filters');
+            if (btnClear) btnClear.addEventListener('click', () => clearFilters(true));
+
+            const btnClearEmpty = document.querySelector('#btn-clear-filters-empty');
+            if (btnClearEmpty) btnClearEmpty.addEventListener('click', () => clearFilters(true));
+
+            // sort selector
+            const sortSelect = document.querySelector('#sort-select');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', (e) => {
+                    currentSort = e.target.value;
+                    applyFilters();
+                });
+            }
+
             // about dialog
             const btnAbout = document.querySelector('#btn-about');
             const dialog = document.querySelector('#about-dialog');
@@ -164,16 +180,43 @@ document.addEventListener('DOMContentLoaded', () => {
         populateFilterSidebars();
         applyFilters();
     }
-    
-    function populateFilterSidebars(){
-        function createCheckbox(type, value, label){};
+
+    function populateFilterSidebars() {
+        const tmplCheckbox = document.querySelector('#tmpl-checkbox');
+
+        function createCheckbox(type, value, label) {
+            const clone = tmplCheckbox.content.cloneNode(true);
+            const input = clone.querySelector('input');
+            const labelEl = clone.querySelector('label');
+
+            input.id = `${type}-${value}`;
+            input.value = value;
+            input.dataset.filterType = type;
+
+            let isChecked = false;
+            if (type === 'gender') isChecked = filters.gender === value;
+            else if (filters[type].includes(value)) isChecked = true;
+
+            if (isChecked) input.checked = true;
+
+            input.addEventListener('change', (e) => handleFilterChange(e.target));
+            labelEl.textContent = label;
+
+            return clone;
+        }
+
+        // create gender filter checkbox HTML
+        const genderContainer = document.querySelector('#filter-gender');
+        genderContainer.innerHTML = '';
+        genderContainer.appendChild(createCheckbox('gender', 'mens', 'Men'));
+        genderContainer.appendChild(createCheckbox('gender', 'womens', 'Women'));;
     };
 
-    function applyFilters() {};
+    function applyFilters() { };
 
-    function clearFilters() {};
+    function clearFilters() { };
 
-
+    function handleFilterChange(input) { }
 
     // --- function calls ---
     init();
