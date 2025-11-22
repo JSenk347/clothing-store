@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // browse link
             if (e.target.dataset.view === 'browse') {
                 e.preventDefault();
-                clearFilters(false); // Reset all when clicking Browse directly
+                clearFilters(false); // reset all when clicking Browse directly
                 renderBrowseView();
                 switchView('browse');
             }
@@ -214,7 +214,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyFilters() { };
 
-    function clearFilters() { };
+    function clearFilters(redraw = true) {
+        filters = { gender: null, category: [], color: [], size: [] };
+        if (redraw) renderBrowseView();
+    }
 
     function handleFilterChange(input) { }
 
