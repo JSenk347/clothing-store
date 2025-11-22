@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const btnClose = document.querySelector('#btn-close-about');
             const btnCloseBtm = document.querySelector('#btn-close-about-bottom');
 
-            if (btnAbout) btnAbout.addEventListener('click', () => dialog.showModal()); // https://www.w3schools.com/jsreF/met_dialog_showmodal.asp
+            if (btnAbout) btnAbout.addEventListener('click', () => dialog.showModal()); // https://www.w3schools.com/jsreF/met_dialog_showmodal.asp pulls dialog to the foreground
             if (btnClose) btnClose.addEventListener('click', () => dialog.close());
             if (btnCloseBtm) btnCloseBtm.addEventListener('click', () => dialog.close());
 

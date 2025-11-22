@@ -132,7 +132,63 @@
             </section>
         </article>
 
-        <article id="view-browse" class="view-section hidden"></article>
+        <!-- browse view -->
+        <article id="view-browse" class="view-section hidden">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- filters sidebar -->
+                <aside class="w-full lg:w-1/4 shrink-0">
+                    <div class="border-2 border-black p-4 sticky top-24 bg-white">
+                        <div class="flex justify-between items-center mb-4 border-b-2 border-black pb-2">
+                            <h2 class="font-bold uppercase">Filters</h2>
+                            <button id="btn-clear-filters" class="text-xs underline font-bold uppercase hover:bg-black hover:text-white px-1">Clear</button>
+                        </div>
+                        <div class="space-y-6">
+                            <section>
+                                <h3 class="font-bold mb-2 text-xs uppercase bg-black text-white px-1 inline-block">Gender</h3>
+                                <div id="filter-gender" class="space-y-1 pt-2"></div>
+                            </section>
+                            <section>
+                                <h3 class="font-bold mb-2 text-xs uppercase bg-black text-white px-1 inline-block">Categories</h3>
+                                <div id="filter-categories" class="space-y-1 pt-2 max-h-48 overflow-y-auto border-b-2 border-black pb-2"></div>
+                            </section>
+                            <section>
+                                <h3 class="font-bold mb-2 text-xs uppercase bg-black text-white px-1 inline-block">Colors</h3>
+                                <div id="filter-colors" class="flex flex-wrap gap-2 pt-2"></div>
+                            </section>
+                            <section>
+                                <h3 class="font-bold mb-2 text-xs uppercase bg-black text-white px-1 inline-block">Size</h3>
+                                <div id="filter-sizes" class="grid grid-cols-4 gap-2 pt-2"></div>
+                            </section>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- results grid -->
+                <section class="w-full lg:w-3/4">
+                    <div class="flex justify-between items-center mb-6 border-2 border-black p-4 bg-white">
+                        <span id="results-count" class="text-sm font-bold uppercase">0 Results</span>
+                        <div class="flex items-center gap-2">
+                            <label for="sort-select" class="text-sm font-bold uppercase">Sort:</label>
+                            <select id="sort-select" class="border-2 border-black p-1 text-sm font-bold uppercase bg-white cursor-pointer hover:bg-gray-100">
+                                <option value="name_asc">Name (A-Z)</option>
+                                <option value="price_asc">Price (Low-High)</option>
+                                <option value="price_desc">Price (High-Low)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="active-filters" class="flex flex-wrap gap-2 mb-4"></div>
+                    
+                    <div id="browse-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    
+                    <div id="no-results" class="hidden text-center py-12 border-2 border-black border-dashed bg-gray-50">
+                        <p class="text-lg font-bold uppercase">No products match.</p>
+                        <button id="btn-clear-filters-empty" class="mt-4 underline font-bold uppercase hover:bg-black hover:text-white px-2 py-1">Clear Filters</button>
+                    </div>
+                </section>
+            </div>
+        </article>
+
         <article id="view-product" class="view-section hidden"></article>
         <article id="view-cart" class="view-section hidden"></article>
 
@@ -170,8 +226,8 @@
     </dialog>
 
     <template id="tmpl-category-card">
-        <div class="cat-card cursor-pointer group border-2 border-black p-4 hover:bg-black hover:text-white transition-colors">
-            <div class="aspect-square mb-4 border-2 border-black bg-gray-100 flex items-center justify-center">
+        <div class="cat-card cursor-pointer group border-2 border-black p-4 hover:text-white hover:bg-black transition-colors">
+            <div class="aspect-square mb-4 border-2 border-black bg-gray-100 flex items-center justify-center hover:text-gray-500">
                 <span class="text-xl font-bold uppercase cat-title-placeholder"></span>
             </div>
             <h3 class="text-xl font-black uppercase text-center cat-title"></h3>
