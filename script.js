@@ -209,7 +209,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const genderContainer = document.querySelector('#filter-gender');
         genderContainer.innerHTML = '';
         genderContainer.appendChild(createCheckbox('gender', 'mens', 'Men'));
-        genderContainer.appendChild(createCheckbox('gender', 'womens', 'Women'));;
+        genderContainer.appendChild(createCheckbox('gender', 'womens', 'Women'));
+
+        // categories filters
+        // get all categories from product list
+        const cats = [...new Set(products.map(p => p.category))].sort();
+        const catContainer = document.querySelector('#filter-categories');
+        catContainer.innerHTML = '';
+        for (const c of cats) {
+            catContainer.appendChild(createCheckbox('category', c, c));
+        }
+
     };
 
     function applyFilters() { };
@@ -220,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleFilterChange(input) { }
+
 
     // --- function calls ---
     init();
