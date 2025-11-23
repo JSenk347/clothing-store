@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (const c of colors) {
             const btn = document.createElement('button');
-            
+
             // finds the first product that matches the color
             const sampleProd = products.find(p => p.color.find(col => col.name === c));
             const hex = sampleProd ? sampleProd.color.find(col => col.name === c).hex : '#ccc';
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProductGrid(productList) {
         const grid = document.querySelector('#browse-grid');
         const noRes = document.querySelector('#no-results');
-        
+
         // check if elements exist
         if (!grid || !noRes) return;
 
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
             noRes.classList.add('visible');
             return;
         }
-        
+
         noRes.classList.add('hidden');
         noRes.classList.remove('visible');
 
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const p of productList) {
             const clone = template.content.cloneNode(true);
             const cardDiv = clone.querySelector('.product-card');
-            
+
             // populate product card
             const placeholder = clone.querySelector('.card-placeholder');
             const title = clone.querySelector('.card-title');
@@ -381,14 +381,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (title) title.textContent = p.name;
             if (cat) cat.textContent = p.category;
             if (price) price.textContent = `$${p.price.toFixed(2)}`;
-            
+
             // NEED: click handler to bring us to product page
             if (cardDiv) {
                 cardDiv.addEventListener('click', () => {
-                    // router('product', p.id);
+                    renderProductView(p.id);
+                    switchView("product")
                 });
             }
-            
+
             grid.appendChild(clone);
         }
     }
@@ -444,6 +445,109 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // update active filter HTML
         updateActiveFilterTags();
+    }
+
+    function renderProductView(productId) {
+        // find product by id
+        const p = products.find(i => i.id == productId);
+        if (!p) return;
+        
+
+        // update details
+        document.querySelector('#p-title').textContent = p.name;
+        document.querySelector('#p-price').textContent = `$${p.price.toFixed(2)}`;
+        document.querySelector('#p-desc').textContent = p.description;
+        document.querySelector('#p-material').textContent = p.material;
+        document.querySelector('#p-img-text').textContent = p.name;
+
+        // breadcrumbs
+        document.querySelector('#crumb-gender').textContent = p.gender;
+        document.querySelector('#crumb-category').textContent = p.category;
+        document.querySelector('#crumb-title').textContent = p.name;
+
+        // store ID for fart
+        document.querySelector('#btn-add-cart').dataset.productId = p.id;
+
+        // color selection Logic
+        const cContainer = document.querySelector('#p-colors');
+        cContainer.innerHTML = '';
+        const hiddenColorInput = document.querySelector('#selected-color');
+        hiddenColorInput.value = '';
+
+        for (const c of p.color) {
+            const btn = document.createElement('button');
+            btn.className = 'w-8 h-8 border-2 border-black mr-2';
+            btn.style.backgroundColor = c.hex;
+            btn.title = c.name;
+            btn.addEventListener('click', () => {
+                // clear styles
+                Array.from(cContainer.children).forEach(b => b.style.outline = 'none');
+                // set Active
+                btn.style.outline = '2px solid black';
+                btn.style.outlineOffset = '2px';
+                hiddenColorInput.value = c.name;
+            });
+            cContainer.appendChild(btn);
+        }
+
+        // size selection
+        const sContainer = document.querySelector('#p-sizes');
+        sContainer.innerHTML = '';
+        const hiddenSizeInput = document.querySelector('#selected-size');
+        hiddenSizeInput.value = '';
+
+        for (const s of p.sizes) {
+            const btn = document.createElement('button');
+            btn.className = 'min-w-[3rem] h-10 border-2 border-black font-bold hover:bg-black hover:text-white transition-colors mr-2';
+            btn.textContent = s;
+            btn.addEventListener('click', () => {
+                // clear styles
+                Array.from(sContainer.children).forEach(b => {
+                    b.classList.remove('bg-black', 'text-white');
+                    b.classList.add('hover:border-black');
+                    b.classList.add('hover:bg-black');
+                });
+                // set as active
+                btn.classList.remove('hover:bg-black');
+                btn.classList.add('bg-black', 'text-white');
+                // set value
+                hiddenSizeInput.value = s;
+            });
+            sContainer.appendChild(btn);
+        }
+
+        // reset qty
+        const qtyInput = document.querySelector('#p-qty');
+        if (qtyInput) qtyInput.value = 1;
+
+        // related products logiv
+        const related = products.filter(item => item.category === p.category && item.id !== p.id).slice(0, 4);
+        const relatedGrid = document.querySelector('#related-grid');
+        relatedGrid.innerHTML = '';
+
+        const template = document.querySelector('#tmpl-product-card');
+        if (template) {
+            for (const rp of related) {
+                const clone = template.content.cloneNode(true);
+                const cardDiv = clone.querySelector('.product-card');
+
+                clone.querySelector('.card-placeholder').textContent = rp.name;
+                clone.querySelector('.card-title').textContent = rp.name;
+                clone.querySelector('.card-category').textContent = rp.category;
+                clone.querySelector('.card-price').textContent = `$${rp.price.toFixed(2)}`;
+
+                // set data-product-id for delegation in related grid as well
+                if (cardDiv) {
+                    cardDiv.dataset.productId = rp.id;
+                }
+                relatedGrid.appendChild(clone);
+
+                cardDiv.addEventListener("click", () => {
+                    renderProductView(rp.id);
+                    switchView("product")
+                })
+            }
+        }
     }
 
     function clearFilters(redraw = true) {
