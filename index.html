@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STYLEHUB - SPA Store</title>
+    <title>JDClothing - SPA Store</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -57,7 +57,7 @@
                 
                 <!-- logo -->
                 <a href="#" data-view="home" class="nav-link text-2xl font-bold tracking-tight uppercase border-2 border-black px-2 py-1">
-                    STYLEHUB
+                    JDCLOTHING
                 </a>
 
                 <!-- nav -->
@@ -262,7 +262,7 @@
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center mb-8">
                 <div class="mb-4 md:mb-0">
-                     <span class="text-2xl font-bold uppercase border-2 border-white px-2 py-1">STYLEHUB</span>
+                     <span class="text-2xl font-bold uppercase border-2 border-white px-2 py-1">JDCLOTHING</span>
                      <p class="text-gray-400 text-sm mt-2 font-mono">COMP 3612 Assignment 2</p>
                 </div>
                 <div class="flex space-x-6 font-bold uppercase">
@@ -271,25 +271,65 @@
                 </div>
             </div>
             <div class="border-t border-gray-800 pt-6 text-center text-sm text-gray-500 font-mono">
-                &copy; <time datetime="2025">2025</time> StyleHub Inc.
+                &copy; <time datetime="2025">2025</time> JDClothing Inc.
             </div>
         </div>
     </footer>
 
     <!-- about view -->
-    <dialog id="about-dialog" class="p-0 w-full max-w-md border-4 border-black">
+    <dialog id="about-dialog" class="p-0 w-full max-w-lg border-4 border-black shadow-2xl backdrop:bg-black/80">
         <div class="bg-black p-4 text-white flex justify-between items-center">
-            <h2 class="text-xl font-black uppercase">About Us</h2>
-            <button id="btn-close-about" class="text-white text-2xl font-bold">&times;</button>
+            <h2 class="text-xl font-black uppercase tracking-wider">About Project</h2>
+            <button id="btn-close-about" class="text-white text-3xl leading-none font-bold hover:text-gray-300">&times;</button>
         </div>
-        <div class="p-6 bg-white">
-            <p class="mb-4 font-mono text-sm">SPA Project - COMP 3612</p>
-            <div class="flex justify-end">
-                <button id="btn-close-about-bottom" class="bg-white text-black border-2 border-black px-4 py-2 font-bold uppercase hover:bg-black hover:text-white">Close</button>
-            </div>
+
+        <div class="p-8 bg-white space-y-6">
+            
+            <section>
+                <h3 class="font-black uppercase text-lg border-b-2 border-black mb-2 pb-1">Assignment Details</h3>
+                <p class="font-mono text-sm leading-relaxed">
+                    <strong>COMP 3612 - Assignment 2</strong><br>
+                    Single-Page Application (SPA)<br>
+                    Fall 2025
+                </p>
+                <p class="mt-2 text-sm text-gray-600">
+                    A responsive e-commerce platform featuring dynamic product rendering, filtering, and a persistent shopping cart using LocalStorage.
+                </p>
+            </section>
+
+            <section>
+                <h3 class="font-black uppercase text-lg border-b-2 border-black mb-2 pb-1">Technologies Used</h3>
+                <ul class="list-disc list-inside font-mono text-sm space-y-1">
+                    <li>HTML5 & Semantic Markup</li>
+                    <li>Tailwind CSS (Utility Framework)</li>
+                    <li>Vanilla JavaScript (ES6+)</li>
+                    <li>LocalStorage API</li>
+                    <li>Fetch API</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 class="font-black uppercase text-lg border-b-2 border-black mb-2 pb-1">Developed By</h3>
+                <div class="font-mono text-sm font-bold">
+                    <p>Darren Law</p>
+                    <p class="text-gray-500">ID: 201635245</p>
+                </div>
+            </section>
+
+            <section class="pt-2">
+                <a href="https://github.com/JSenk347/clothing-store" target="_blank" class="block w-full text-center bg-black text-white py-3 font-bold uppercase border-2 border-black hover:bg-white hover:text-black transition-colors mb-4">
+                    View Code on GitHub
+                </a>
+                
+                <div class="flex justify-end">
+                    <button id="btn-close-about-bottom" class="text-xs underline font-bold uppercase text-gray-500 hover:text-black">
+                        Close Window
+                    </button>
+                </div>
+            </section>
+
         </div>
     </dialog>
-
 <!-------------------------------------TEMPLATES----------------------------------------->
 
     <!-- category card -->

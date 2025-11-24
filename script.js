@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initialization ---
     async function init() {
         await fetchData();
-        loadCart(); // Load cart on startup
+        loadCart(); 
         setupEventListeners();
     }
 
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load cart from LocalStorage on startup
     function loadCart() {
-        const storedCart = localStorage.getItem("stylehub_cart");
+        const storedCart = localStorage.getItem("jdclothing_cart");
         if (storedCart) {
             cart = JSON.parse(storedCart);
         }
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Save current cart state to LocalStorage
     function saveCart() {
-        localStorage.setItem("stylehub_cart", JSON.stringify(cart));
+        localStorage.setItem("jdclothing_cart", JSON.stringify(cart));
         updateCartCount();
     }
 
