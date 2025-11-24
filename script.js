@@ -555,6 +555,86 @@ document.addEventListener('DOMContentLoaded', () => {
         if (redraw) renderBrowseView();
     }
 
+    
+// CART DATA MANAGEMENT
+
+// Load cart from LocalStorage on startup
+function loadCart() {
+    const storedCart = localStorage.getItem("stylehub_cart");
+    if (storedCart) {
+        cart = JSON.parse(storedCart);
+    }
+    updateCartCount();
+}
+
+// Save current cart state to LocalStorage
+function saveCart() {
+    localStorage.setItem("stylehub_cart", JSON.stringify(cart));
+    updateCartCount();
+}
+
+// Update the badge count in the header
+function updateCartCount() {
+    const count = cart.reduce((acc, item) => acc + item.qty, 0);
+    const badge = document.querySelector('#cart-count');
+    if (badge) {
+        badge.textContent = count;
+    }
+}
+
+// Logic to add an item to the cart array
+function addToCart() {
+    const btn = document.querySelector('#btn-add-cart');
+    // Guard clause if button doesn't exist in current view
+    if (!btn) return; 
+
+    const productId = btn.dataset.productId;
+    const colorInput = document.querySelector('#selected-color');
+    const sizeInput = document.querySelector('#selected-size');
+    const qtyInput = document.querySelector('#p-qty');
+
+    // Validation
+    if (!colorInput.value || !sizeInput.value) {
+        showToast("Please select a color and size.", "error");
+        return;
+    }
+
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    const qty = parseInt(qtyInput.value) || 1;
+
+    // Check if exact variant exists
+    const existingItem = cart.find(item => 
+        item.id === productId && 
+        item.color === colorInput.value && 
+        item.size === sizeInput.value
+    );
+
+    if (existingItem) {
+        existingItem.qty += qty;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: "IMG", 
+            color: colorInput.value,
+            size: sizeInput.value,
+            qty: qty
+        });
+    }
+
+    saveCart();
+    showToast(`${product.name} added to cart!`);
+}
+
+// Logic to remove an item by index
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    saveCart();
+    renderCartView(); 
+}
 
     // --- function calls ---
     init();
