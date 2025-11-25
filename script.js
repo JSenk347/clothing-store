@@ -809,9 +809,12 @@ document.addEventListener('DOMContentLoaded', () => {
         input.value = value;
         input.dataset.filterType = type;
 
-        let isChecked = type === 'gender'
-            ? filters.gender === value
-            : filters[type].includes(value);
+        let isChecked = false;
+        if (type === 'gender') {
+            isChecked = filters.gender === value;
+        } else {
+            isChecked = filters[type].includes(value);
+        }
 
         if (isChecked) input.checked = true;
 
