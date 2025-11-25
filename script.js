@@ -1,3 +1,15 @@
+/**
+ * JDClothing - Single Page Application
+ * COMP 3612 - Assignment 2
+ * 
+ * A responsive e-commerce SPA featuring:
+ * - Dynamic product browsing with filtering and sorting
+ * - Persistent shopping cart using LocalStorage
+ * - Gender and category-based navigation
+ * 
+ * @authors Darren Law, Jordan Senko
+ */
+
 const DATA_URL = 'https://gist.githubusercontent.com/rconnolly/d37a491b50203d66d043c26f33dbd798/raw/37b5b68c527ddbe824eaed12073d266d5455432a/clothing-compact.json';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,7 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let filters = { gender: null, category: [], color: [], size: [] };
     let currentSort = 'name_asc';
 
-    // --- Initialization ---
+    /**
+     * Initializes the application by loading data and setting up event listeners.
+     */
     async function init() {
         await fetchData();
         loadCart(); 
@@ -16,37 +30,52 @@ document.addEventListener('DOMContentLoaded', () => {
         renderFeaturedProducts();
     }
 
-    // --- Render Featured Products (first 4 products) ---
+    /* =========================================
+       SHARED HELPER FUNCTIONS
+       ========================================= */
+
+    /**
+     * Creates a product card element from a product object using the template.
+     * @param {Object} product - The product data object
+     * @returns {DocumentFragment} - Cloned template with product data populated
+     */
+    function createProductCard(product) {
+        const template = document.querySelector('#tmpl-product-card');
+        const clone = template.content.cloneNode(true);
+        const cardDiv = clone.querySelector('.product-card');
+
+        const placeholder = clone.querySelector('.card-placeholder');
+        const title = clone.querySelector('.card-title');
+        const cat = clone.querySelector('.card-category');
+        const price = clone.querySelector('.card-price');
+
+        if (placeholder) placeholder.textContent = product.name;
+        if (title) title.textContent = product.name;
+        if (cat) cat.textContent = product.category;
+        if (price) price.textContent = `$${product.price.toFixed(2)}`;
+
+        if (cardDiv) {
+            cardDiv.addEventListener('click', () => {
+                renderProductView(product.id);
+                switchView('product');
+            });
+        }
+
+        return clone;
+    }
+
+    /**
+     * Renders the first 4 products as featured items on the home page.
+     */
     function renderFeaturedProducts() {
         const container = document.querySelector('#featured-products-container');
         if (!container || products.length === 0) return;
 
         container.innerHTML = '';
-        const template = document.querySelector('#tmpl-product-card');
         const featuredProducts = products.slice(0, 4);
 
         for (const p of featuredProducts) {
-            const clone = template.content.cloneNode(true);
-            const cardDiv = clone.querySelector('.product-card');
-
-            const placeholder = clone.querySelector('.card-placeholder');
-            const title = clone.querySelector('.card-title');
-            const cat = clone.querySelector('.card-category');
-            const price = clone.querySelector('.card-price');
-
-            if (placeholder) placeholder.textContent = p.name;
-            if (title) title.textContent = p.name;
-            if (cat) cat.textContent = p.category;
-            if (price) price.textContent = `$${p.price.toFixed(2)}`;
-
-            if (cardDiv) {
-                cardDiv.addEventListener('click', () => {
-                    renderProductView(p.id);
-                    switchView('product');
-                });
-            }
-
-            container.appendChild(clone);
+            container.appendChild(createProductCard(p));
         }
     }
 
@@ -75,16 +104,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Event Listeners ---
+    /* =========================================
+       EVENT HANDLERS
+       ========================================= */
+
+    /**
+     * Handles gender navigation clicks (Men/Women).
+     * @param {Event} e - Click event
+     */
+    function handleGenderNavigation(e) {
+        e.preventDefault();
+        const gender = e.target.dataset.filterGender;
+        renderGenderView(gender);
+        switchView('gender');
+    }
+
+    /**
+     * Handles category card clicks to filter by category.
+     * @param {HTMLElement} card - The clicked category card element
+     */
+    function handleCategoryCardClick(card) {
+        const cat = card.dataset.category;
+        const currentGender = filters.gender;
+        
+        clearFilters(false);
+        filters.gender = currentGender;
+        filters.category = [cat];
+
+        renderBrowseView();
+        switchView('browse');
+    }
+
+    /**
+     * Handles about dialog open/close actions.
+     * @param {Event} e - Click event
+     */
+    function handleAboutDialog(e) {
+        const dialog = document.querySelector('#about-dialog');
+        const btnAbout = document.querySelector('#btn-about');
+        const btnClose = document.querySelector('#btn-close-about');
+        const btnCloseBtm = document.querySelector('#btn-close-about-bottom');
+
+        if (btnAbout && e.target === btnAbout) dialog.showModal();
+        if (btnClose && e.target === btnClose) dialog.close();
+        if (btnCloseBtm && e.target === btnCloseBtm) dialog.close();
+    }
+
+    /**
+     * Sets up all event listeners using event delegation.
+     */
     function setupEventListeners() {
         document.querySelector('body').addEventListener('click', (e) => {
 
             // Gender Navigation
             if (e.target.matches('.nav-gender')) {
-                e.preventDefault();
-                const gender = e.target.dataset.filterGender;
-                renderGenderView(gender);
-                switchView('gender');
+                handleGenderNavigation(e);
             }
 
             // Home Navigation
@@ -103,16 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Category Card Navigation
             if (e.target.closest('.cat-card')) {
-                const card = e.target.closest('.cat-card');
-                const cat = card.dataset.category;
-                const currentGender = filters.gender;
-                
-                clearFilters(false);
-                filters.gender = currentGender;
-                filters.category = [cat];
-
-                renderBrowseView();
-                switchView('browse');
+                handleCategoryCardClick(e.target.closest('.cat-card'));
             }
 
             // Clear Filters
@@ -123,17 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btnClearEmpty && e.target === btnClearEmpty) clearFilters(true);
 
             // About Dialog
-            const btnAbout = document.querySelector('#btn-about');
-            const dialog = document.querySelector('#about-dialog');
-            const btnClose = document.querySelector('#btn-close-about');
-            const btnCloseBtm = document.querySelector('#btn-close-about-bottom');
+            handleAboutDialog(e);
 
-            if (btnAbout && e.target === btnAbout) dialog.showModal();
-            if (btnClose && e.target === btnClose) dialog.close();
-            if (btnCloseBtm && e.target === btnCloseBtm) dialog.close();
-
-            // --- CART HANDLERS ---
-            
             // Open Cart View
             if (e.target.closest('#btn-cart')) {
                 e.preventDefault();
@@ -176,10 +232,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* =========================================
-       CART IMPLEMENTATION (Strict DOM Manipulation)
+       CART IMPLEMENTATION
        ========================================= */
 
-    // Load cart from LocalStorage on startup
+    /**
+     * Loads cart data from LocalStorage on application startup.
+     */
     function loadCart() {
         const storedCart = localStorage.getItem("jdclothing_cart");
         if (storedCart) {
@@ -188,13 +246,17 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCartCount();
     }
 
-    // Save current cart state to LocalStorage
+    /**
+     * Persists the current cart state to LocalStorage.
+     */
     function saveCart() {
         localStorage.setItem("jdclothing_cart", JSON.stringify(cart));
         updateCartCount();
     }
 
-    // Update the badge count in the header
+    /**
+     * Updates the cart count badge in the header.
+     */
     function updateCartCount() {
         const count = cart.reduce((acc, item) => acc + item.qty, 0);
         const badge = document.querySelector('#cart-count');
@@ -203,58 +265,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Logic to add an item to the cart array with Validation
-    function addToCart() {
-        const btn = document.querySelector('#btn-add-cart');
-        if (!btn) return; 
-
-        const productId = btn.dataset.productId;
+    /**
+     * Validates that color and size are selected.
+     * @returns {Object} - { isValid, colorInput, sizeInput, colorLabel, sizeLabel }
+     */
+    function validateCartSelections() {
         const colorInput = document.querySelector('#selected-color');
         const sizeInput = document.querySelector('#selected-size');
-        const qtyInput = document.querySelector('#p-qty');
-
-        // 1. Get visual references to the labels to apply red text
         const colorContainer = document.querySelector('#p-colors');
         const sizeContainer = document.querySelector('#p-sizes');
-        // previousElementSibling assumes the label is directly before the container in HTML
-        const colorLabel = colorContainer.previousElementSibling; 
+        const colorLabel = colorContainer.previousElementSibling;
         const sizeLabel = sizeContainer.previousElementSibling;
 
-        // 2. Reset any previous error styles (clean slate)
+        // Reset previous error styles
         if (colorLabel) colorLabel.classList.remove('text-red-600');
         if (sizeLabel) sizeLabel.classList.remove('text-red-600');
 
-        let hasError = false;
+        let isValid = true;
 
-        // 3. Check Color
         if (!colorInput.value) {
-            if (colorLabel) colorLabel.classList.add('text-red-600'); 
-            hasError = true;
+            if (colorLabel) colorLabel.classList.add('text-red-600');
+            isValid = false;
         }
 
-        // 4. Check Size
         if (!sizeInput.value) {
             if (sizeLabel) sizeLabel.classList.add('text-red-600');
-            hasError = true;
+            isValid = false;
         }
 
-        // 5. Stop if error
-        if (hasError) {
-            showToast("Please select options highlighted in red.", "error");
-            return;
-        }
+        return { isValid, colorInput, sizeInput };
+    }
 
-        // --- Success Logic ---
-        const product = products.find(p => p.id === productId);
-        if (!product) return;
-
-        const qty = parseInt(qtyInput.value) || 1;
-
-        // Check if exact variant exists
-        const existingItem = cart.find(item => 
-            item.id === productId && 
-            item.color === colorInput.value && 
-            item.size === sizeInput.value
+    /**
+     * Adds a product variant to the cart array.
+     * @param {Object} product - The product object
+     * @param {string} color - Selected color
+     * @param {string} size - Selected size
+     * @param {number} qty - Quantity to add
+     */
+    function addItemToCart(product, color, size, qty) {
+        const existingItem = cart.find(item =>
+            item.id === product.id &&
+            item.color === color &&
+            item.size === size
         );
 
         if (existingItem) {
@@ -264,13 +317,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: product.id,
                 name: product.name,
                 price: product.price,
-                image: product.image || "IMG", 
-                color: colorInput.value,
-                size: sizeInput.value,
+                image: product.image || "IMG",
+                color: color,
+                size: size,
                 qty: qty
             });
         }
+    }
 
+    /**
+     * Validates selections and adds the current product to cart.
+     */
+    function addToCart() {
+        const btn = document.querySelector('#btn-add-cart');
+        if (!btn) return;
+
+        const validation = validateCartSelections();
+
+        if (!validation.isValid) {
+            showToast("Please select options highlighted in red.", "error");
+            return;
+        }
+
+        const productId = btn.dataset.productId;
+        const product = products.find(p => p.id === productId);
+        if (!product) return;
+
+        const qtyInput = document.querySelector('#p-qty');
+        const qty = parseInt(qtyInput.value) || 1;
+
+        addItemToCart(product, validation.colorInput.value, validation.sizeInput.value, qty);
         saveCart();
         showToast(`${product.name} added to cart!`);
     }
@@ -282,7 +358,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCartView(); 
     }
 
-    // DOM-based Toast Notification
+    /**
+     * Displays a toast notification message.
+     * @param {string} message - The message to display
+     * @param {string} type - 'success' or 'error' for styling
+     */
     function showToast(message, type = "success") {
         const container = document.querySelector('#toast-container');
         
@@ -331,14 +411,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return row;
     }
 
-    // Creates a single item row using strict DOM nodes
-    function createCartItemRow(item, index) {
-        const row = document.createElement('article');
-        row.className = "grid grid-cols-1 md:grid-cols-6 gap-4 items-center border-b border-gray-200 py-4";
+    /**
+     * Creates a cart column with optional mobile label.
+     * @param {string} className - CSS classes for the column
+     * @param {string} content - Text content
+     * @param {string|null} mobileLabel - Optional mobile-only label
+     * @returns {HTMLElement} - The column div element
+     */
+    function createCartColumn(className, content, mobileLabel = null) {
+        const col = document.createElement('div');
+        col.className = className;
 
-        // --- Column 1: Image & Title ---
-        const col1 = document.createElement('div');
-        col1.className = "col-span-2 flex gap-4 items-center";
+        if (mobileLabel) {
+            const label = document.createElement('span');
+            label.className = "md:hidden font-bold mr-2";
+            label.textContent = mobileLabel;
+            col.appendChild(label);
+        }
+
+        col.appendChild(document.createTextNode(content));
+        return col;
+    }
+
+    /**
+     * Creates the item info column (image + title + remove button).
+     * @param {Object} item - Cart item
+     * @param {number} index - Item index for removal
+     * @returns {HTMLElement} - The column element
+     */
+    function createItemInfoColumn(item, index) {
+        const col = document.createElement('div');
+        col.className = "col-span-2 flex gap-4 items-center";
 
         const imgPlaceholder = document.createElement('div');
         imgPlaceholder.className = "w-16 h-16 bg-gray-200 border border-black flex items-center justify-center text-xs font-bold";
@@ -356,64 +459,108 @@ document.addEventListener('DOMContentLoaded', () => {
 
         titleDiv.appendChild(h3);
         titleDiv.appendChild(removeBtn);
-        col1.appendChild(imgPlaceholder);
-        col1.appendChild(titleDiv);
+        col.appendChild(imgPlaceholder);
+        col.appendChild(titleDiv);
 
-        // --- Column 2: Variant Info ---
-        const col2 = document.createElement('div');
-        col2.className = "flex md:block gap-2 text-sm font-mono uppercase";
-        
-        const mobileLabel2 = document.createElement('span');
-        mobileLabel2.className = "md:hidden font-bold";
-        mobileLabel2.textContent = "Variant: ";
-        
-        col2.appendChild(mobileLabel2);
-        col2.appendChild(document.createTextNode(`${item.color} / ${item.size}`));
+        return col;
+    }
 
-        // --- Column 3: Price ---
-        const col3 = document.createElement('div');
-        col3.className = "text-right font-mono";
-        
-        const mobileLabel3 = document.createElement('span');
-        mobileLabel3.className = "md:hidden font-bold mr-2";
-        mobileLabel3.textContent = "Price:";
-        
-        col3.appendChild(mobileLabel3);
-        col3.appendChild(document.createTextNode(`$${item.price.toFixed(2)}`));
+    /**
+     * Creates a single cart item row.
+     * @param {Object} item - Cart item object
+     * @param {number} index - Item index for removal
+     * @returns {HTMLElement} - The row element
+     */
+    function createCartItemRow(item, index) {
+        const row = document.createElement('article');
+        row.className = "grid grid-cols-1 md:grid-cols-6 gap-4 items-center border-b border-gray-200 py-4";
 
-        // --- Column 4: Quantity ---
-        const col4 = document.createElement('div');
-        col4.className = "text-center font-mono";
-
-        const mobileLabel4 = document.createElement('span');
-        mobileLabel4.className = "md:hidden font-bold mr-2";
-        mobileLabel4.textContent = "Qty:";
-
-        col4.appendChild(mobileLabel4);
-        col4.appendChild(document.createTextNode(item.qty));
-
-        // --- Column 5: Subtotal ---
-        const col5 = document.createElement('div');
-        col5.className = "text-right font-bold font-mono";
-
-        const mobileLabel5 = document.createElement('span');
-        mobileLabel5.className = "md:hidden mr-2";
-        mobileLabel5.textContent = "Subtotal:";
-
-        col5.appendChild(mobileLabel5);
-        col5.appendChild(document.createTextNode(`$${(item.price * item.qty).toFixed(2)}`));
-
-        // Append all columns to row
-        row.appendChild(col1);
-        row.appendChild(col2);
-        row.appendChild(col3);
-        row.appendChild(col4);
-        row.appendChild(col5);
+        row.appendChild(createItemInfoColumn(item, index));
+        row.appendChild(createCartColumn("flex md:block gap-2 text-sm font-mono uppercase", `${item.color} / ${item.size}`, "Variant: "));
+        row.appendChild(createCartColumn("text-right font-mono", `$${item.price.toFixed(2)}`, "Price:"));
+        row.appendChild(createCartColumn("text-center font-mono", item.qty.toString(), "Qty:"));
+        row.appendChild(createCartColumn("text-right font-bold font-mono", `$${(item.price * item.qty).toFixed(2)}`, "Subtotal:"));
 
         return row;
     }
 
-    // Order Summary & Calculations
+    /**
+     * Creates a labeled select dropdown element.
+     * @param {string} id - Element ID
+     * @param {string} labelText - Label text
+     * @param {Array} options - Array of {value, text} objects
+     * @returns {HTMLElement} - Wrapper div with label and select
+     */
+    function createSelectInput(id, labelText, options) {
+        const wrapper = document.createElement('div');
+        wrapper.className = "mb-4";
+
+        const label = document.createElement('label');
+        label.className = "block font-bold uppercase text-xs mb-1";
+        label.setAttribute('for', id);
+        label.textContent = labelText;
+
+        const select = document.createElement('select');
+        select.id = id;
+        select.className = "w-full border-2 border-black p-2 font-bold uppercase text-sm bg-white cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black";
+
+        options.forEach(opt => {
+            const optionEl = document.createElement('option');
+            optionEl.value = opt.value;
+            optionEl.textContent = opt.text;
+            select.appendChild(optionEl);
+        });
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(select);
+        return wrapper;
+    }
+
+    /**
+     * Creates a summary row displaying a label and value.
+     * @param {string} label - Row label text
+     * @param {string} id - ID for the value span
+     * @param {boolean} isBold - Whether row should be bold/emphasized
+     * @returns {HTMLElement} - The row div
+     */
+    function createSummaryRow(label, id, isBold = false) {
+        const div = document.createElement('div');
+        div.className = `flex justify-between ${isBold ? 'text-lg font-black border-t-2 border-black pt-2 mt-2' : ''}`;
+
+        const lbl = document.createElement('span');
+        lbl.textContent = label;
+
+        const val = document.createElement('span');
+        val.id = id;
+        val.textContent = "$0.00";
+
+        div.appendChild(lbl);
+        div.appendChild(val);
+        return div;
+    }
+
+    /**
+     * Calculates shipping cost based on destination and method.
+     * @param {number} merchTotal - Merchandise subtotal
+     * @param {string} dest - Destination code (ca/us/int)
+     * @param {string} method - Shipping method (standard/express/priority)
+     * @returns {number} - Shipping cost
+     */
+    function calculateShipping(merchTotal, dest, method) {
+        if (merchTotal > 500) return 0;
+
+        const rates = {
+            'standard': { 'ca': 10, 'us': 15, 'int': 20 },
+            'express': { 'ca': 25, 'us': 25, 'int': 30 },
+            'priority': { 'ca': 35, 'us': 50, 'int': 50 }
+        };
+        return rates[method][dest];
+    }
+
+    /**
+     * Creates the order summary sidebar box.
+     * @returns {HTMLElement} - The summary box element
+     */
     function createSummaryBox() {
         const box = document.createElement('aside');
         box.className = "border-2 border-black p-6 sticky top-24 bg-gray-50";
@@ -423,211 +570,144 @@ document.addEventListener('DOMContentLoaded', () => {
         h2.textContent = "Order Summary";
         box.appendChild(h2);
 
-        // --- Helper to create select inputs ---
-        function createSelect(id, labelText, options) {
-            const wrapper = document.createElement('div');
-            wrapper.className = "mb-4";
-            
-            const label = document.createElement('label');
-            label.className = "block font-bold uppercase text-xs mb-1";
-            label.setAttribute('for', id);
-            label.textContent = labelText;
-            
-            const select = document.createElement('select');
-            select.id = id;
-            select.className = "w-full border-2 border-black p-2 font-bold uppercase text-sm bg-white cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black";
-            
-            options.forEach(opt => {
-                const optionEl = document.createElement('option');
-                optionEl.value = opt.value;
-                optionEl.textContent = opt.text;
-                select.appendChild(optionEl);
-            });
-
-            wrapper.appendChild(label);
-            wrapper.appendChild(select);
-            return wrapper;
-        }
-
-        // Create Destination Select
-        const destWrapper = createSelect('cart-dest', 'Destination', [
+        // Destination Select
+        box.appendChild(createSelectInput('cart-dest', 'Destination', [
             { value: 'ca', text: 'Canada' },
             { value: 'us', text: 'United States' },
             { value: 'int', text: 'International' }
-        ]);
-        box.appendChild(destWrapper);
+        ]));
 
-        // Create Shipping Select
-        const shipWrapper = createSelect('cart-ship', 'Shipping Method', [
+        // Shipping Select
+        box.appendChild(createSelectInput('cart-ship', 'Shipping Method', [
             { value: 'standard', text: 'Standard' },
             { value: 'express', text: 'Express' },
             { value: 'priority', text: 'Priority' }
-        ]);
-        box.appendChild(shipWrapper);
+        ]));
 
-        // --- Totals Display Area ---
+        // Totals Display
         const totalsDiv = document.createElement('div');
         totalsDiv.className = "space-y-2 font-mono text-sm mb-6 border-t-2 border-black pt-4";
-
-        function createRow(label, id, isBold = false) {
-            const div = document.createElement('div');
-            div.className = `flex justify-between ${isBold ? 'text-lg font-black border-t-2 border-black pt-2 mt-2' : ''}`;
-            
-            const lbl = document.createElement('span');
-            lbl.textContent = label;
-            
-            const val = document.createElement('span');
-            val.id = id;
-            val.textContent = "$0.00";
-
-            div.appendChild(lbl);
-            div.appendChild(val);
-            return div;
-        }
-
-        totalsDiv.appendChild(createRow("Merchandise", "summary-merch"));
-        totalsDiv.appendChild(createRow("Shipping", "summary-ship"));
-        totalsDiv.appendChild(createRow("Tax (5% CA only)", "summary-tax"));
-        totalsDiv.appendChild(createRow("Total", "summary-total", true)); 
-
+        totalsDiv.appendChild(createSummaryRow("Merchandise", "summary-merch"));
+        totalsDiv.appendChild(createSummaryRow("Shipping", "summary-ship"));
+        totalsDiv.appendChild(createSummaryRow("Tax (5% CA only)", "summary-tax"));
+        totalsDiv.appendChild(createSummaryRow("Total", "summary-total", true));
         box.appendChild(totalsDiv);
 
-        // --- Checkout Button ---
+        // Checkout Button
         const checkoutBtn = document.createElement('button');
         checkoutBtn.className = "w-full bg-black text-white py-3 font-bold uppercase border-2 border-black hover:bg-white hover:text-black transition-colors";
         checkoutBtn.textContent = "Checkout";
-        
-        checkoutBtn.addEventListener('click', () => {
-            cart = []; // Clear state
-            saveCart(); // Save state
-            renderCartView(); // Update view
-            showToast("Order placed successfully!");
-            
-            // Return to home after delay
-            setTimeout(() => {
-                const homeView = document.querySelector('#view-home');
-                if (homeView) {
-                     document.querySelectorAll('.view-section').forEach(el => {
-                         el.classList.remove('visible');
-                         el.classList.add('hidden');
-                     });
-                     document.querySelector('#view-home').classList.remove('hidden');
-                     document.querySelector('#view-home').classList.add('visible');
-                }
-            }, 1500);
-        });
-
+        checkoutBtn.addEventListener('click', handleCheckout);
         box.appendChild(checkoutBtn);
 
-        // --- Calculation Logic ---
-        function updateTotals() {
+        // Update totals on change
+        const updateTotals = () => {
             const merchTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            
-            const destSelect = box.querySelector('#cart-dest');
-            const shipSelect = box.querySelector('#cart-ship');
-            const dest = destSelect.value;
-            const method = shipSelect.value;
-            
-            let shippingCost = 0;
-
-            // Shipping Rule: Free if over $500
-            if (merchTotal <= 500) {
-                const rates = {
-                    'standard': { 'ca': 10, 'us': 15, 'int': 20 },
-                    'express':  { 'ca': 25, 'us': 25, 'int': 30 },
-                    'priority': { 'ca': 35, 'us': 50, 'int': 50 }
-                };
-                shippingCost = rates[method][dest];
-            }
-
-            let tax = 0;
-            if (dest === 'ca') {
-                tax = merchTotal * 0.05;
-            }
-
+            const dest = box.querySelector('#cart-dest').value;
+            const method = box.querySelector('#cart-ship').value;
+            const shippingCost = calculateShipping(merchTotal, dest, method);
+            const tax = dest === 'ca' ? merchTotal * 0.05 : 0;
             const grandTotal = merchTotal + shippingCost + tax;
 
             box.querySelector('#summary-merch').textContent = `$${merchTotal.toFixed(2)}`;
             box.querySelector('#summary-ship').textContent = `$${shippingCost.toFixed(2)}`;
             box.querySelector('#summary-tax').textContent = `$${tax.toFixed(2)}`;
             box.querySelector('#summary-total').textContent = `$${grandTotal.toFixed(2)}`;
-        }
+        };
 
         box.querySelector('#cart-dest').addEventListener('change', updateTotals);
         box.querySelector('#cart-ship').addEventListener('change', updateTotals);
-
-        setTimeout(updateTotals, 0); 
+        setTimeout(updateTotals, 0);
 
         return box;
     }
 
-    // Main Cart Render Function
-    function renderCartView() {
-        const container = document.querySelector('#view-cart');
-        if (!container) return;
-        
-        // 1. Clear container safely
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
+    /**
+     * Handles checkout - clears cart and returns to home.
+     */
+    function handleCheckout() {
+        cart = [];
+        saveCart();
+        renderCartView();
+        showToast("Order placed successfully!");
 
-        // 2. Render Page Title
+        setTimeout(() => switchView('home'), 1500);
+    }
+
+    /**
+     * Creates the cart page header.
+     * @returns {HTMLElement} - Header section
+     */
+    function createCartHeader() {
         const headerSection = document.createElement('header');
         headerSection.className = "border-2 border-black p-8 text-center mb-8 bg-white";
         const h1 = document.createElement('h1');
         h1.className = "text-4xl font-black uppercase";
         h1.textContent = "Shopping Cart";
         headerSection.appendChild(h1);
-        container.appendChild(headerSection);
+        return headerSection;
+    }
 
-        // 3. Handle Empty State
+    /**
+     * Creates the empty cart state element.
+     * @returns {HTMLElement} - Empty state div
+     */
+    function createEmptyCartState() {
+        const emptyState = document.createElement('div');
+        emptyState.className = "text-center py-12 border-2 border-dashed border-black bg-gray-50";
+
+        const msg = document.createElement('p');
+        msg.className = "font-bold uppercase text-lg text-gray-500 mb-4";
+        msg.textContent = "Your cart is empty.";
+
+        const shopBtn = document.createElement('button');
+        shopBtn.className = "underline font-bold uppercase hover:bg-black hover:text-white px-2 py-1";
+        shopBtn.textContent = "Continue Shopping";
+        shopBtn.addEventListener('click', () => {
+            const browseLink = document.querySelector('[data-view="browse"]');
+            if (browseLink) browseLink.click();
+        });
+
+        emptyState.appendChild(msg);
+        emptyState.appendChild(shopBtn);
+        return emptyState;
+    }
+
+    /**
+     * Renders the shopping cart view.
+     */
+    function renderCartView() {
+        const container = document.querySelector('#view-cart');
+        if (!container) return;
+
+        // Clear container
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+
+        container.appendChild(createCartHeader());
+
+        // Handle empty state
         if (cart.length === 0) {
-            const emptyState = document.createElement('div');
-            emptyState.className = "text-center py-12 border-2 border-dashed border-black bg-gray-50";
-            
-            const msg = document.createElement('p');
-            msg.className = "font-bold uppercase text-lg text-gray-500 mb-4";
-            msg.textContent = "Your cart is empty.";
-            
-            const shopBtn = document.createElement('button');
-            shopBtn.className = "underline font-bold uppercase hover:bg-black hover:text-white px-2 py-1";
-            shopBtn.textContent = "Continue Shopping";
-            shopBtn.addEventListener('click', () => {
-                 // Logic to switch to browse
-                 const browseLink = document.querySelector('[data-view="browse"]');
-                 if(browseLink) browseLink.click();
-            });
-
-            emptyState.appendChild(msg);
-            emptyState.appendChild(shopBtn);
-            container.appendChild(emptyState);
+            container.appendChild(createEmptyCartState());
             return;
         }
 
-        // 4. Render Main Content (Grid Layout)
+        // Render cart content
         const wrapper = document.createElement('div');
         wrapper.className = "flex flex-col lg:flex-row gap-8";
 
-        // Left: Items List
+        // Items list
         const itemsSection = document.createElement('section');
         itemsSection.className = "w-full lg:w-2/3 space-y-4";
-        
         itemsSection.appendChild(createCartHeaderRow());
-
-        cart.forEach((item, index) => {
-            const itemRow = createCartItemRow(item, index);
-            itemsSection.appendChild(itemRow);
-        });
-
+        cart.forEach((item, index) => itemsSection.appendChild(createCartItemRow(item, index)));
         wrapper.appendChild(itemsSection);
 
-        // Right: Summary Sidebar
+        // Summary sidebar
         const summarySection = document.createElement('div');
         summarySection.className = "w-full lg:w-1/3";
-        
-        const summaryBox = createSummaryBox();
-        summarySection.appendChild(summaryBox);
-
+        summarySection.appendChild(createSummaryBox());
         wrapper.appendChild(summarySection);
 
         container.appendChild(wrapper);
@@ -663,101 +743,142 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFilters();
     }
 
-    function populateFilterSidebars() {
+    /**
+     * Extracts unique values from products array.
+     * @param {Function} extractor - Function to extract values from each product
+     * @returns {Array} - Sorted unique values
+     */
+    function getUniqueValues(extractor) {
+        const values = [];
+        for (const p of products) {
+            const extracted = extractor(p);
+            if (Array.isArray(extracted)) {
+                values.push(...extracted);
+            } else {
+                values.push(extracted);
+            }
+        }
+        return [...new Set(values)].sort();
+    }
+
+    /**
+     * Creates a filter checkbox element.
+     * @param {string} type - Filter type (gender/category)
+     * @param {string} value - Filter value
+     * @param {string} label - Display label
+     * @returns {DocumentFragment} - Cloned checkbox template
+     */
+    function createFilterCheckbox(type, value, label) {
         const tmplCheckbox = document.querySelector('#tmpl-checkbox');
+        const clone = tmplCheckbox.content.cloneNode(true);
+        const input = clone.querySelector('input');
+        const labelEl = clone.querySelector('label');
 
-        function createCheckbox(type, value, label) {
-            const clone = tmplCheckbox.content.cloneNode(true);
-            const input = clone.querySelector('input');
-            const labelEl = clone.querySelector('label');
+        input.id = `${type}-${value}`;
+        input.value = value;
+        input.dataset.filterType = type;
 
-            input.id = `${type}-${value}`;
-            input.value = value;
-            input.dataset.filterType = type;
+        let isChecked = type === 'gender'
+            ? filters.gender === value
+            : filters[type].includes(value);
 
-            let isChecked = false;
-            if (type === 'gender') isChecked = filters.gender === value;
-            else if (filters[type].includes(value)) isChecked = true;
+        if (isChecked) input.checked = true;
 
-            if (isChecked) input.checked = true;
+        input.addEventListener('change', (e) => handleFilterChange(e.target));
+        labelEl.textContent = label;
 
-            input.addEventListener('change', (e) => handleFilterChange(e.target));
-            labelEl.textContent = label;
+        return clone;
+    }
 
-            return clone;
+    /**
+     * Creates a color filter button.
+     * @param {string} colorName - Color name
+     * @param {string} hex - Hex color code
+     * @returns {HTMLElement} - Color button element
+     */
+    function createColorFilterButton(colorName, hex) {
+        const btn = document.createElement('button');
+        btn.className = 'w-6 h-6 border-2 border-black mr-2 mb-2';
+        btn.style.backgroundColor = hex;
+        btn.title = colorName;
+
+        if (filters.color.includes(colorName)) {
+            btn.style.outline = '2px solid black';
+            btn.style.outlineOffset = '2px';
         }
 
+        btn.addEventListener('click', () => {
+            if (filters.color.includes(colorName)) {
+                filters.color = filters.color.filter(item => item !== colorName);
+            } else {
+                filters.color.push(colorName);
+            }
+            applyFilters();
+        });
+
+        return btn;
+    }
+
+    /**
+     * Creates a size filter button.
+     * @param {string} size - Size value
+     * @returns {HTMLElement} - Size button element
+     */
+    function createSizeFilterButton(size) {
+        const btn = document.createElement('button');
+        btn.className = 'border-2 border-black py-1 px-2 text-xs font-bold hover:bg-black hover:text-white transition-colors';
+        btn.textContent = size;
+
+        if (filters.size.includes(size)) {
+            btn.classList.add('bg-black', 'text-white');
+        }
+
+        btn.addEventListener('click', () => {
+            if (filters.size.includes(size)) {
+                filters.size = filters.size.filter(item => item !== size);
+            } else {
+                filters.size.push(size);
+            }
+            applyFilters();
+        });
+
+        return btn;
+    }
+
+    /**
+     * Populates all filter sidebars with options.
+     */
+    function populateFilterSidebars() {
+        // Gender filters
         const genderContainer = document.querySelector('#filter-gender');
         genderContainer.innerHTML = '';
-        genderContainer.appendChild(createCheckbox('gender', 'mens', 'Men'));
-        genderContainer.appendChild(createCheckbox('gender', 'womens', 'Women'));
+        genderContainer.appendChild(createFilterCheckbox('gender', 'mens', 'Men'));
+        genderContainer.appendChild(createFilterCheckbox('gender', 'womens', 'Women'));
 
-        const allCats = [];
-        for (const p of products) {
-            allCats.push(p.category);
-        }
-        const cats = allCats.filter((item, index) => allCats.indexOf(item) === index).sort();
-
+        // Category filters
+        const cats = getUniqueValues(p => p.category);
         const catContainer = document.querySelector('#filter-categories');
         catContainer.innerHTML = '';
         for (const c of cats) {
-            catContainer.appendChild(createCheckbox('category', c, c));
+            catContainer.appendChild(createFilterCheckbox('category', c, c));
         }
 
-        const allColors = [];
-        for (const p of products) {
-            for (const c of p.color) {
-                allColors.push(c.name);
-            }
-        }
-        const colors = allColors.filter((item, index) => allColors.indexOf(item) === index).sort();
-
+        // Color filters
         const colorContainer = document.querySelector('#filter-colors');
         colorContainer.innerHTML = '';
-
+        const colors = getUniqueValues(p => p.color.map(c => c.name));
         for (const c of colors) {
-            const btn = document.createElement('button');
             const sampleProd = products.find(p => p.color.find(col => col.name === c));
             const hex = sampleProd ? sampleProd.color.find(col => col.name === c).hex : '#ccc';
-
-            btn.className = 'w-6 h-6 border-2 border-black mr-2 mb-2';
-            btn.style.backgroundColor = hex;
-            btn.title = c;
-
-            if (filters.color.includes(c)) {
-                btn.style.outline = '2px solid black';
-                btn.style.outlineOffset = '2px';
-            }
-
-            btn.addEventListener('click', () => {
-                if (filters.color.includes(c)) filters.color = filters.color.filter(item => item !== c);
-                else filters.color.push(c);
-                applyFilters();
-            });
-
-            colorContainer.appendChild(btn);
+            colorContainer.appendChild(createColorFilterButton(c, hex));
         }
 
+        // Size filters
         const sizes = ["XS", "S", "M", "L", "XL", "24", "26", "28", "30", "32"];
         const sizeContainer = document.querySelector('#filter-sizes');
         sizeContainer.innerHTML = '';
-
         for (const s of sizes) {
-            const btn = document.createElement('button');
-            btn.className = 'border-2 border-black py-1 px-2 text-xs font-bold hover:bg-black hover:text-white transition-colors';
-            btn.textContent = s;
-
-            if (filters.size.includes(s)) {
-                btn.classList.add('bg-black', 'text-white');
-            }
-
-            btn.addEventListener('click', () => {
-                if (filters.size.includes(s)) filters.size = filters.size.filter(item => item !== s);
-                else filters.size.push(s);
-                applyFilters();
-            });
-
-            sizeContainer.appendChild(btn);
+            sizeContainer.appendChild(createSizeFilterButton(s));
         }
     }
 
@@ -808,6 +929,10 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFilters();
     }
 
+    /**
+     * Renders the product grid in the browse view.
+     * @param {Array} productList - Array of product objects to display
+     */
     function renderProductGrid(productList) {
         const grid = document.querySelector('#browse-grid');
         const noRes = document.querySelector('#no-results');
@@ -825,33 +950,15 @@ document.addEventListener('DOMContentLoaded', () => {
         noRes.classList.add('hidden');
         noRes.classList.remove('visible');
 
-        const template = document.querySelector('#tmpl-product-card');
-
         for (const p of productList) {
-            const clone = template.content.cloneNode(true);
-            const cardDiv = clone.querySelector('.product-card');
-
-            const placeholder = clone.querySelector('.card-placeholder');
-            const title = clone.querySelector('.card-title');
-            const cat = clone.querySelector('.card-category');
-            const price = clone.querySelector('.card-price');
-
-            if (placeholder) placeholder.textContent = p.name;
-            if (title) title.textContent = p.name;
-            if (cat) cat.textContent = p.category;
-            if (price) price.textContent = `$${p.price.toFixed(2)}`;
-
-            if (cardDiv) {
-                cardDiv.addEventListener('click', () => {
-                    renderProductView(p.id);
-                    switchView("product");
-                });
-            }
-
-            grid.appendChild(clone);
+            grid.appendChild(createProductCard(p));
         }
     }
 
+    /**
+     * Filters and sorts products based on current filter/sort state,
+     * then updates the product grid display.
+     */
     function applyFilters() {
         let result = products.filter(p => {
             if (filters.gender && p.gender !== filters.gender) return false;
@@ -892,10 +999,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateActiveFilterTags();
     }
 
-    function renderProductView(productId) {
-        const p = products.find(i => i.id == productId);
-        if (!p) return;
-        
+    /**
+     * Populates product info fields in the view.
+     * @param {Object} p - Product object
+     */
+    function populateProductInfo(p) {
         document.querySelector('#p-title').textContent = p.name;
         document.querySelector('#p-price').textContent = `$${p.price.toFixed(2)}`;
         document.querySelector('#p-desc').textContent = p.description;
@@ -907,17 +1015,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#crumb-title').textContent = p.name;
 
         document.querySelector('#btn-add-cart').dataset.productId = p.id;
+    }
 
+    /**
+     * Renders color selection buttons for a product.
+     * @param {Array} colors - Array of color objects {name, hex}
+     */
+    function renderColorOptions(colors) {
         const cContainer = document.querySelector('#p-colors');
         cContainer.innerHTML = '';
         const hiddenColorInput = document.querySelector('#selected-color');
         hiddenColorInput.value = '';
 
-        // Reset any potential error state on render
         const colorLabel = cContainer.previousElementSibling;
-        if(colorLabel) colorLabel.classList.remove('text-red-600');
+        if (colorLabel) colorLabel.classList.remove('text-red-600');
 
-        for (const c of p.color) {
+        for (const c of colors) {
             const btn = document.createElement('button');
             btn.className = 'w-8 h-8 border-2 border-black mr-2';
             btn.style.backgroundColor = c.hex;
@@ -927,70 +1040,75 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.style.outline = '2px solid black';
                 btn.style.outlineOffset = '2px';
                 hiddenColorInput.value = c.name;
-                
-                // UX Improvement: Clear error on selection
-                if(colorLabel) colorLabel.classList.remove('text-red-600');
+                if (colorLabel) colorLabel.classList.remove('text-red-600');
             });
             cContainer.appendChild(btn);
         }
+    }
 
+    /**
+     * Renders size selection buttons for a product.
+     * @param {Array} sizes - Array of size strings
+     */
+    function renderSizeOptions(sizes) {
         const sContainer = document.querySelector('#p-sizes');
         sContainer.innerHTML = '';
         const hiddenSizeInput = document.querySelector('#selected-size');
         hiddenSizeInput.value = '';
 
-        // Reset any potential error state on render
         const sizeLabel = sContainer.previousElementSibling;
-        if(sizeLabel) sizeLabel.classList.remove('text-red-600');
+        if (sizeLabel) sizeLabel.classList.remove('text-red-600');
 
-        for (const s of p.sizes) {
+        for (const s of sizes) {
             const btn = document.createElement('button');
             btn.className = 'min-w-[3rem] h-10 border-2 border-black font-bold hover:bg-black hover:text-white transition-colors mr-2';
             btn.textContent = s;
             btn.addEventListener('click', () => {
                 Array.from(sContainer.children).forEach(b => {
                     b.classList.remove('bg-black', 'text-white');
-                    b.classList.add('hover:border-black');
-                    b.classList.add('hover:bg-black');
+                    b.classList.add('hover:border-black', 'hover:bg-black');
                 });
                 btn.classList.remove('hover:bg-black');
                 btn.classList.add('bg-black', 'text-white');
                 hiddenSizeInput.value = s;
-
-                // UX Improvement: Clear error on selection
-                if(sizeLabel) sizeLabel.classList.remove('text-red-600');
+                if (sizeLabel) sizeLabel.classList.remove('text-red-600');
             });
             sContainer.appendChild(btn);
         }
+    }
+
+    /**
+     * Renders related products grid.
+     * @param {Object} currentProduct - The current product being viewed
+     */
+    function renderRelatedProducts(currentProduct) {
+        const related = products
+            .filter(item => item.category === currentProduct.category && item.id !== currentProduct.id)
+            .slice(0, 4);
+        const relatedGrid = document.querySelector('#related-grid');
+        relatedGrid.innerHTML = '';
+
+        for (const rp of related) {
+            relatedGrid.appendChild(createProductCard(rp));
+        }
+    }
+
+    /**
+     * Renders the single product detail view.
+     * @param {string} productId - The ID of the product to display
+     */
+    function renderProductView(productId) {
+        const p = products.find(i => i.id == productId);
+        if (!p) return;
+
+        populateProductInfo(p);
+        renderColorOptions(p.color);
+        renderSizeOptions(p.sizes);
 
         const qtyInput = document.querySelector('#p-qty');
         if (qtyInput) qtyInput.value = 1;
 
-        const related = products.filter(item => item.category === p.category && item.id !== p.id).slice(0, 4);
-        const relatedGrid = document.querySelector('#related-grid');
-        relatedGrid.innerHTML = '';
-
-        const template = document.querySelector('#tmpl-product-card');
-        if (template) {
-            for (const rp of related) {
-                const clone = template.content.cloneNode(true);
-                const cardDiv = clone.querySelector('.product-card');
-
-                clone.querySelector('.card-placeholder').textContent = rp.name;
-                clone.querySelector('.card-title').textContent = rp.name;
-                clone.querySelector('.card-category').textContent = rp.category;
-                clone.querySelector('.card-price').textContent = `$${rp.price.toFixed(2)}`;
-
-                if (cardDiv) {
-                    cardDiv.dataset.productId = rp.id;
-                    cardDiv.addEventListener("click", () => {
-                        renderProductView(rp.id);
-                        switchView("product");
-                    });
-                }
-                relatedGrid.appendChild(clone);
-            }
-        }
+        renderRelatedProducts(p);
     }
 
     function clearFilters(redraw = true) {
