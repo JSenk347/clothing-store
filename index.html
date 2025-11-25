@@ -50,17 +50,19 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- outermost container header -->
+    <!-- =========================================
+         HEADER
+         ========================================= -->
     <header class="sticky top-0 z-50 bg-white border-b-2 border-black">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 
-                <!-- logo -->
+                <!-- Logo -->
                 <a href="#" data-view="home" class="nav-link text-2xl font-bold tracking-tight uppercase border-2 border-black px-2 py-1">
                     JDCLOTHING
                 </a>
 
-                <!-- nav -->
+                <!-- Navigation -->
                 <nav id="main-nav" class="md:flex space-x-8 font-bold uppercase text-sm">
                     <a href="#" data-view="home" class="nav-link hover:underline">Home</a>
                     <a href="#" data-filter-gender="womens" class="nav-gender hover:underline">Women</a>
@@ -69,7 +71,7 @@
                     <button id="btn-about" class="hover:underline font-bold uppercase">About</button>
                 </nav>
 
-                <!-- cart -->
+                <!-- Cart -->
                 <div class="flex items-center gap-4">
                     <div id="btn-cart" class="cursor-pointer flex items-center gap-2 hover:underline">
                         <span class="font-bold uppercase">Cart</span>
@@ -92,12 +94,14 @@
         </div>
     </header>
 
-    <!-- outermost container -->
+    <!-- =========================================
+         MAIN CONTENT
+         ========================================= -->
     <main id="main-container" class="flex-grow container mx-auto px-4 py-8">
 
         <article id="view-home" class="view-section visible">
 
-            <!-- home view header -->
+            <!-- Home View Header -->
             <section class="border-2 border-black p-12 text-center mb-12">
                 <h1 class="text-4xl font-black uppercase mb-4">Summer Collection 2025</h1>
                 <div class="flex justify-center gap-4">
@@ -106,7 +110,7 @@
                 </div>
             </section>
 
-            <!-- home view featured products-->
+            <!-- Featured Products -->
             <section>
                 <h2 class="text-xl font-black mb-6 uppercase border-b-2 border-black pb-2">Featured Products</h2>
                 <div id="featured-products-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -115,7 +119,7 @@
             </section>
         </article>
 
-        <!-- gendered view -->
+        <!-- Gender View -->
         <article id="view-gender" class="view-section hidden">
             <section id="gender-hero" class="border-2 border-black p-12 text-center mb-10">
                 <h1 id="gender-title" class="text-4xl font-black uppercase">Category</h1>
@@ -126,10 +130,10 @@
             </section>
         </article>
 
-        <!-- browse view -->
+        <!-- Browse View -->
         <article id="view-browse" class="view-section hidden">
             <div class="flex flex-col lg:flex-row gap-8">
-                <!-- filters sidebar -->
+                <!-- Filters Sidebar -->
                 <aside class="w-full lg:w-1/4 shrink-0">
                     <div class="border-2 border-black p-4 relative bg-white">
                         <div class="flex justify-between items-center mb-4 border-b-2 border-black pb-2">
@@ -157,7 +161,7 @@
                     </div>
                 </aside>
 
-                <!-- results grid -->
+                <!-- Results Grid -->
                 <section class="w-full lg:w-3/4">
                     <div class="flex justify-between items-center mb-6 border-2 border-black p-4 bg-white">
                         <span id="results-count" class="text-sm font-bold uppercase">0 Results</span>
@@ -183,7 +187,7 @@
             </div>
         </article>
 
-        <!-- product view -->
+        <!-- Product View -->
         <article id="view-product" class="view-section hidden">
             <div class="text-sm mb-6 border-b-2 border-black pb-2 font-mono">
                 <span class="uppercase">HOME</span> / 
@@ -242,7 +246,9 @@
 
     </main>
 
-    <!-- footer -->
+    <!-- =========================================
+         FOOTER
+         ========================================= -->
     <footer class="bg-black text-white pt-12 pb-6 border-t-4 border-white">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center mb-8">
@@ -260,7 +266,9 @@
         </div>
     </footer>
 
-    <!-- about view -->
+    <!-- =========================================
+         ABOUT DIALOG
+         ========================================= -->
     <dialog id="about-dialog" class="p-0 w-full max-w-lg border-4 border-black shadow-2xl backdrop:bg-black/80">
         <div class="bg-black p-4 text-white flex justify-between items-center">
             <h2 class="text-xl font-black uppercase tracking-wider">About Project</h2>
@@ -316,9 +324,12 @@
 
         </div>
     </dialog>
-<!-------------------------------------TEMPLATES----------------------------------------->
 
-    <!-- category card -->
+    <!-- =========================================
+         TEMPLATES
+         ========================================= -->
+
+    <!-- Category Card Template -->
     <template id="tmpl-category-card">
         <div class="cat-card cursor-pointer group border-2 border-black p-4 hover:text-white hover:bg-black transition-colors">
             <div class="aspect-square mb-4 border-2 border-black bg-gray-100 flex items-center justify-center hover:text-gray-500">
@@ -329,12 +340,12 @@
         </div>
     </template>
 
-    <!-- product card template -->
+    <!-- Product Card Template -->
     <template id="tmpl-product-card">
         <div class="product-card bg-white border-2 border-black cursor-pointer hover:bg-gray-50 flex flex-col h-full transition-transform hover:-translate-y-1">
             <div class="aspect-[3/4] bg-gray-200 border-b-2 border-black relative overflow-hidden group">
                 <div class="placeholder-content text-sm font-mono card-placeholder"></div>
-                <!-- hover overlay effect -->
+                <!-- Hover Overlay Effect -->
                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
             </div>
             <div class="p-4 flex flex-col flex-grow">
@@ -348,7 +359,7 @@
         </div>
     </template>
 
-    <!-- filter checkbox -->
+    <!-- Filter Checkbox Template -->
     <template id="tmpl-checkbox">
         <div class="flex items-center mb-1 hover:bg-gray-100 p-1 cursor-pointer">
             <input type="checkbox" class="h-4 w-4 text-black border-2 border-black focus:ring-0 filter-input cursor-pointer bg-white checked:bg-black appearance-none relative">
@@ -356,7 +367,7 @@
         </div>
     </template>    
 
-    <!-- toaster -->
+    <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
 </body>
