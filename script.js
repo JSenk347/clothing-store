@@ -17,19 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        GLOBAL STATE
        ========================================= */
-    let products = [];
-    let cart = []; 
-    let filters = { gender: null, category: [], color: [], size: [] };
-    let currentSort = 'name_asc';
+    let products = [];  // Stores all product data fetched from API
+    let cart = [];  // Stores items added to shopping cart
+    let filters = { gender: null, category: [], color: [], size: [] };  // Active filter selections
+    let currentSort = 'name_asc';  // Current sort method for browse view
 
     /**
      * Initializes the application by loading data and setting up event listeners.
      */
     async function init() {
-        await fetchData();
-        loadCart(); 
-        setupEventListeners();
-        renderFeaturedProducts();
+        await fetchData();  // Load product data from API or LocalStorage
+        loadCart();  // Restore cart from LocalStorage if exists
+        setupEventListeners();  // Set up click handlers for navigation
+        renderFeaturedProducts();  // Display featured products on home page
     }
 
     /* =========================================
@@ -42,28 +42,34 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {DocumentFragment} - Cloned template with product data populated
      */
     function createProductCard(product) {
+        // Get the product card template from HTML
         const template = document.querySelector('#tmpl-product-card');
+        // Clone the template so we can modify it
         const clone = template.content.cloneNode(true);
         const cardDiv = clone.querySelector('.product-card');
 
+        // Find all the elements we need to populate with product data
         const placeholder = clone.querySelector('.card-placeholder');
         const title = clone.querySelector('.card-title');
         const cat = clone.querySelector('.card-category');
         const price = clone.querySelector('.card-price');
 
+        // Fill in the product information
         if (placeholder) placeholder.textContent = product.name;
         if (title) title.textContent = product.name;
         if (cat) cat.textContent = product.category;
-        if (price) price.textContent = `$${product.price.toFixed(2)}`;
+        if (price) price.textContent = `$${product.price.toFixed(2)}`;  // Format price to 2 decimal places
 
+        // Set up the quick add button (+) to add item to cart directly
         const quickAddBtn = clone.querySelector('.btn-quick-add');
         if (quickAddBtn) {
             quickAddBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); 
+                e.stopPropagation();  // Prevent card click from also triggering
                 quickAddToCart(product);
             });
         }
 
+        // Clicking the card opens the product detail view
         if (cardDiv) {
             cardDiv.addEventListener('click', () => {
                 renderProductView(product.id);
@@ -79,11 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderFeaturedProducts() {
         const container = document.querySelector('#featured-products-container');
+        // Exit early if container doesn't exist or no products loaded
         if (!container || products.length === 0) return;
 
-        container.innerHTML = '';
-        const featuredProducts = products.slice(0, 4);
+        container.innerHTML = '';  // Clear any existing content
+        const featuredProducts = products.slice(0, 4);  // Get first 4 products
 
+        // Create and add a card for each featured product
         for (const p of featuredProducts) {
             container.appendChild(createProductCard(p));
         }
@@ -95,19 +103,22 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchData() {
         console.log(`Attempting to fetch data...`);
         try {
+            // Check if we already have products cached in LocalStorage
             const productsStr = localStorage.getItem("products");
 
             if (!productsStr) {
+                // No cache - fetch from API
                 const resp = await fetch(DATA_URL);
                 if (resp.ok) {
-                    const data = await resp.json();
-                    localStorage.setItem("products", JSON.stringify(data));
-                    products = data;
+                    const data = await resp.json();  // Parse JSON response
+                    localStorage.setItem("products", JSON.stringify(data));  // Cache for next time
+                    products = data;  // Store in global variable
                     console.log("Data loaded from API");
                 } else {
                     console.error("Error fetching data", resp.statusText);
                 }
             } else {
+                // Cache exists - parse and use it
                 products = JSON.parse(productsStr);
                 console.log("Data loaded from LocalStorage");
             }
@@ -125,10 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Event} e - Click event
      */
     function handleGenderNavigation(e) {
-        e.preventDefault();
-        const gender = e.target.dataset.filterGender;
-        renderGenderView(gender);
-        switchView('gender');
+        e.preventDefault();  // Stop default link behavior
+        const gender = e.target.dataset.filterGender;  // Get 'mens' or 'womens' from data attribute
+        renderGenderView(gender);  // Set up the gender-specific category view
+        switchView('gender');  // Show the gender view
     }
 
     /**
@@ -136,15 +147,15 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLElement} card - The clicked category card element
      */
     function handleCategoryCardClick(card) {
-        const cat = card.dataset.category;
-        const currentGender = filters.gender;
+        const cat = card.dataset.category;  // Get category name from clicked card
+        const currentGender = filters.gender;  // Remember current gender filter
         
-        clearFilters(false);
-        filters.gender = currentGender;
-        filters.category = [cat];
+        clearFilters(false);  // Reset all filters but don't redraw yet
+        filters.gender = currentGender;  // Restore gender filter
+        filters.category = [cat];  // Set the category filter
 
-        renderBrowseView();
-        switchView('browse');
+        renderBrowseView();  // Update the browse view with new filters
+        switchView('browse');  // Show the browse view
     }
 
     /**
@@ -157,7 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnClose = document.querySelector('#btn-close-about');
         const btnCloseBtm = document.querySelector('#btn-close-about-bottom');
 
+        // Open dialog when About button is clicked
         if (btnAbout && e.target === btnAbout) dialog.showModal();
+        // Close dialog when X button or bottom close button is clicked
         if (btnClose && e.target === btnClose) dialog.close();
         if (btnCloseBtm && e.target === btnCloseBtm) dialog.close();
     }
@@ -230,20 +243,23 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} viewId - The ID suffix of the view to display
      */
     function switchView(viewId) {
+        // Get all view sections (home, browse, product, cart, etc.)
         const views = document.querySelectorAll('.view-section');
 
+        // Hide all views
         for (const view of views) {
             view.classList.add('hidden');
             view.classList.remove('visible');
         }
 
+        // Show the target view
         const target = document.querySelector(`#view-${viewId}`);
         if (target) {
             target.classList.remove('hidden');
             target.classList.add('visible');
         }
 
-        window.scrollTo(0, 0);
+        window.scrollTo(0, 0);  // Scroll to top of page
     }
 
     /* =========================================
@@ -254,29 +270,35 @@ document.addEventListener('DOMContentLoaded', () => {
      * Loads cart data from LocalStorage on application startup.
      */
     function loadCart() {
+        // Try to get saved cart from LocalStorage
         const storedCart = localStorage.getItem("jdclothing_cart");
         if (storedCart) {
-            cart = JSON.parse(storedCart);
+            cart = JSON.parse(storedCart);  // Parse JSON string back to array
         }
-        updateCartCount();
+        updateCartCount();  // Update the cart badge in header
     }
 
     /**
      * Persists the current cart state to LocalStorage.
      */
     function saveCart() {
+        // Save cart array as JSON string to LocalStorage
         localStorage.setItem("jdclothing_cart", JSON.stringify(cart));
-        updateCartCount();
+        updateCartCount();  // Update the cart badge in header
     }
 
     /**
      * Updates the cart count badge in the header.
      */
     function updateCartCount() {
-        const count = cart.reduce((acc, item) => acc + item.qty, 0); // https://www.w3schools.com/jsref/jsref_reduce.asp for .reduce()
+        // Calculate total quantity of all items in cart
+        // reduce() loops through array and accumulates a single value
+        // acc = accumulator (running total), item = current cart item
+        // Starts at 0, adds each item's qty to get total count
+        const count = cart.reduce((acc, item) => acc + item.qty, 0);
         const badge = document.querySelector('#cart-count');
         if (badge) {
-            badge.textContent = count;
+            badge.textContent = count;  // Update badge number in header
         }
     }
 
@@ -285,24 +307,28 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Object} - { isValid, colorInput, sizeInput, colorLabel, sizeLabel }
      */
     function validateCartSelections() {
+        // Get hidden inputs that store selected color and size
         const colorInput = document.querySelector('#selected-color');
         const sizeInput = document.querySelector('#selected-size');
         const colorContainer = document.querySelector('#p-colors');
         const sizeContainer = document.querySelector('#p-sizes');
+        // Get the labels above the color/size buttons
         const colorLabel = colorContainer.previousElementSibling;
         const sizeLabel = sizeContainer.previousElementSibling;
 
-        // Reset previous error styles
+        // Reset previous error styles (remove red text)
         if (colorLabel) colorLabel.classList.remove('text-red-600');
         if (sizeLabel) sizeLabel.classList.remove('text-red-600');
 
         let isValid = true;
 
+        // Check if color is selected, highlight label red if not
         if (!colorInput.value) {
             if (colorLabel) colorLabel.classList.add('text-red-600');
             isValid = false;
         }
 
+        // Check if size is selected, highlight label red if not
         if (!sizeInput.value) {
             if (sizeLabel) sizeLabel.classList.add('text-red-600');
             isValid = false;
@@ -319,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number} qty - Quantity to add
      */
     function addItemToCart(product, color, size, qty) {
+        // Check if this exact product variant (same id, color, size) already exists in cart
         const existingItem = cart.find(item =>
             item.id === product.id &&
             item.color === color &&
@@ -326,13 +353,15 @@ document.addEventListener('DOMContentLoaded', () => {
         );
 
         if (existingItem) {
+            // Item exists - just increase the quantity
             existingItem.qty += qty;
         } else {
+            // New item - add to cart array
             cart.push({
                 id: product.id,
                 name: product.name,
                 price: product.price,
-                image: product.image || "IMG",
+                image: product.image || "IMG",  // Default to "IMG" if no image
                 color: color,
                 size: size,
                 qty: qty
@@ -345,12 +374,13 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Object} product - The product object to add
      */
     function quickAddToCart(product) {
+        // Use first available color and size as defaults
         const defaultColor = product.color[0].name;
         const defaultSize = product.sizes[0];
 
-        addItemToCart(product, defaultColor, defaultSize, 1);
-        saveCart();
-        showToast(`${product.name} added to cart!`);
+        addItemToCart(product, defaultColor, defaultSize, 1);  // Add 1 item
+        saveCart();  // Save to LocalStorage
+        showToast(`${product.name} added to cart!`);  // Show confirmation message
     }
 
     /**
@@ -360,20 +390,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = document.querySelector('#btn-add-cart');
         if (!btn) return;
 
+        // Check that color and size are selected
         const validation = validateCartSelections();
 
         if (!validation.isValid) {
             showToast("Please select options highlighted in red.", "error");
-            return;
+            return;  // Stop here if validation failed
         }
 
+        // Get the product from the button's data attribute
         const productId = btn.dataset.productId;
         const product = products.find(p => p.id === productId);
         if (!product) return;
 
+        // Get quantity from input, default to 1 if invalid
         const qtyInput = document.querySelector('#p-qty');
-        const qty = parseInt(qtyInput.value) || 1; // https://www.w3schools.com/jsref/jsref_parseint.asp
+        const qty = parseInt(qtyInput.value) || 1;  // parseInt converts string to number
 
+        // Add to cart with selected options
         addItemToCart(product, validation.colorInput.value, validation.sizeInput.value, qty);
         saveCart();
         showToast(`${product.name} added to cart!`);
@@ -384,9 +418,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number} index - The index of the item to remove
      */
     function removeFromCart(index) {
-        cart.splice(index, 1);
-        saveCart();
-        renderCartView(); 
+        cart.splice(index, 1);  // Remove 1 item at the given index
+        saveCart();  // Save updated cart to LocalStorage
+        renderCartView();  // Re-render the cart view to reflect changes
     }
 
     /**
@@ -397,9 +431,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function showToast(message, type = "success") {
         const container = document.querySelector('#toast-container');
         
+        // Create the toast notification element
         const toast = document.createElement('div');
         toast.className = `p-4 mb-2 text-white font-bold uppercase text-sm border-2 border-black shadow-lg transition-opacity duration-500`;
         
+        // Set background color based on type (red for error, black for success)
         if (type === 'error') {
             toast.classList.add('bg-red-600');
         } else {
@@ -407,12 +443,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         toast.textContent = message;
+        container.appendChild(toast);  // Add toast to the container
 
-        container.appendChild(toast);
-
-        // Animate out
+        // Animate out after 3 seconds
         setTimeout(() => {
-            toast.classList.add('opacity-0');
+            toast.classList.add('opacity-0');  // Fade out
+            // Remove from DOM after fade animation completes (500ms)
             setTimeout(() => {
                 if(container.contains(toast)) container.removeChild(toast);
             }, 500);
@@ -425,13 +461,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number} newQty - The new quantity value
      */
     function updateCartItemQty(index, newQty) {
+        // If quantity drops below 1, remove the item entirely
         if (newQty < 1) {
             removeFromCart(index);
             return;
         }
-        cart[index].qty = newQty;
-        saveCart();
-        renderCartView();
+        cart[index].qty = newQty;  // Update the quantity
+        saveCart();  // Save to LocalStorage
+        renderCartView();  // Re-render to show updated qty and totals
     }
 
     /**
@@ -640,14 +677,16 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {number} - Shipping cost
      */
     function calculateShipping(merchTotal, dest, method) {
+        // Free shipping for orders over $500
         if (merchTotal > 500) return 0;
 
+        // Shipping rates table: rates[shippingMethod][destination]
         const rates = {
             'standard': { 'ca': 10, 'us': 15, 'int': 20 },
             'express': { 'ca': 25, 'us': 25, 'int': 30 },
             'priority': { 'ca': 35, 'us': 50, 'int': 50 }
         };
-        return rates[method][dest];
+        return rates[method][dest];  // Look up rate by method and destination
     }
 
     /**
@@ -693,18 +732,23 @@ document.addEventListener('DOMContentLoaded', () => {
         checkoutBtn.addEventListener('click', handleCheckout);
         box.appendChild(checkoutBtn);
 
-        // Update totals on change
+        // Function to recalculate and display totals
         const updateTotals = () => {
+            // Calculate merchandise subtotal (price * qty for each item)
             const merchTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            // Get selected destination and shipping method
             const dest = box.querySelector('#cart-dest').value;
             const method = box.querySelector('#cart-ship').value;
+            // Calculate shipping based on selections
             const shippingCost = calculateShipping(merchTotal, dest, method);
+            // Tax only applies to Canadian orders (5% GST)
             let tax = 0;
             if (dest === 'ca') {
                 tax = merchTotal * 0.05;
             }
             const grandTotal = merchTotal + shippingCost + tax;
 
+            // Update the display values
             box.querySelector('#summary-merch').textContent = `$${merchTotal.toFixed(2)}`;
             box.querySelector('#summary-ship').textContent = `$${shippingCost.toFixed(2)}`;
             box.querySelector('#summary-tax').textContent = `$${tax.toFixed(2)}`;
@@ -722,11 +766,12 @@ document.addEventListener('DOMContentLoaded', () => {
      * Handles checkout - clears cart and returns to home.
      */
     function handleCheckout() {
-        cart = [];
-        saveCart();
-        renderCartView();
+        cart = [];  // Empty the cart
+        saveCart();  // Save empty cart to LocalStorage
+        renderCartView();  // Show empty cart state
         showToast("Order placed successfully!");
 
+        // Redirect to home page after 1.5 seconds
         setTimeout(() => switchView('home'), 1500);
     }
 
@@ -818,9 +863,17 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} gender - The gender filter (mens/womens)
      */
     function renderGenderView(gender) {
+        // Filter products to only show selected gender
         const genderProducts = products.filter(p => p.gender === gender);
-        const categories = [...new Set(genderProducts.map(p => p.category))];
+        // Get unique categories from filtered products
+        const categories = [];
+        for (const p of genderProducts) {
+            if (!categories.includes(p.category)) {
+                categories.push(p.category);
+            }
+        }
 
+        // Set the page title based on gender
         const titleElement = document.querySelector('#gender-title');
         if (gender === 'mens') {
             titleElement.textContent = "Men's Collection";
@@ -828,16 +881,20 @@ document.addEventListener('DOMContentLoaded', () => {
             titleElement.textContent = "Women's Collection";
         }
 
+        // Save gender to filters for later use
+        filters.gender = gender;
+
         const container = document.querySelector('#gender-categories');
-        container.innerHTML = '';
+        container.innerHTML = '';  // Clear existing categories
 
         const template = document.querySelector('#tmpl-category-card');
 
+        // Create a category card for each unique category
         for (const cat of categories) {
             const clone = template.content.cloneNode(true);
             clone.querySelector('.cat-title').textContent = cat;
             clone.querySelector('.cat-title-placeholder').textContent = cat;
-            clone.querySelector('.cat-card').dataset.category = cat; 
+            clone.querySelector('.cat-card').dataset.category = cat;  // Store category in data attribute
             container.appendChild(clone);
         }
     }
@@ -859,13 +916,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const values = [];
         for (const p of products) {
             const extracted = extractor(p);
+            // If extractor returns an array, loop through it
             if (Array.isArray(extracted)) {
-                values.push(...extracted);
+                for (const item of extracted) {
+                    // Only add if not already in the array
+                    if (!values.includes(item)) {
+                        values.push(item);
+                    }
+                }
             } else {
-                values.push(extracted);
+                // Only add if not already in the array
+                if (!values.includes(extracted)) {
+                    values.push(extracted);
+                }
             }
         }
-        return [...new Set(values)].sort();
+        values.sort();
+        return values;
     }
 
     /**
@@ -1080,43 +1147,52 @@ document.addEventListener('DOMContentLoaded', () => {
      * then updates the product grid display.
      */
     function applyFilters() {
+        // Filter products based on all active filters
         let result = products.filter(p => {
+            // Check gender filter
             if (filters.gender && p.gender !== filters.gender) return false;
+            // Check category filter
             if (filters.category.length > 0 && !filters.category.includes(p.category)) return false;
 
+            // Check color filter - product must have at least one matching color
             if (filters.color.length > 0) {
                 let hasColor = false;
                 for (const c of p.color) {
                     if (filters.color.includes(c.name)) {
                         hasColor = true;
-                        break;
+                        break;  // Found a match, no need to check more
                     }
                 }
                 if (!hasColor) return false;
             }
 
+            // Check size filter - product must have at least one matching size
             if (filters.size.length > 0) {
                 let hasSize = false;
                 for (const s of p.sizes) {
                     if (filters.size.includes(s)) {
                         hasSize = true;
-                        break;
+                        break;  // Found a match, no need to check more
                     }
                 }
                 if (!hasSize) return false;
             }
-            return true;
+            return true;  // Product passed all filters
         });
 
+        // Sort the filtered results
         const sortMethod = currentSort;
 
+        // localeCompare compares strings alphabetically
         if (sortMethod === 'name_asc') result.sort((a, b) => a.name.localeCompare(b.name));
+        // Numeric sort: a - b = ascending, b - a = descending
         if (sortMethod === 'price_asc') result.sort((a, b) => a.price - b.price);
         if (sortMethod === 'price_desc') result.sort((a, b) => b.price - a.price);
 
+        // Update results count and display
         document.querySelector('#results-count').textContent = `${result.length} Results`;
         renderProductGrid(result);
-        updateActiveFilterTags();
+        updateActiveFilterTags();  // Show active filter tags
     }
 
     /**
@@ -1143,29 +1219,36 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderColorOptions(colors) {
         const cContainer = document.querySelector('#p-colors');
-        cContainer.innerHTML = '';
+        cContainer.innerHTML = '';  // Clear existing color buttons
+        // Hidden input stores the selected color value
         const hiddenColorInput = document.querySelector('#selected-color');
         hiddenColorInput.value = '';
 
+        // Remove any error styling from label
         const colorLabel = cContainer.previousElementSibling;
         if (colorLabel) colorLabel.classList.remove('text-red-600');
 
+        // Create a button for each available color
         for (const c of colors) {
             const btn = document.createElement('button');
             btn.className = 'w-8 h-8 border-2 border-black mr-2';
-            btn.style.backgroundColor = c.hex;
-            btn.title = c.name;
+            btn.style.backgroundColor = c.hex;  // Set button color to actual color
+            btn.title = c.name;  // Show color name on hover
             btn.addEventListener('click', () => {
+                // Remove selection outline from all color buttons
                 Array.from(cContainer.children).forEach(b => b.style.outline = 'none');
+                // Add selection outline to clicked button
                 btn.style.outline = '2px solid black';
                 btn.style.outlineOffset = '2px';
+                // Store selected color in hidden input
                 hiddenColorInput.value = c.name;
+                // Remove error styling if present
                 if (colorLabel) colorLabel.classList.remove('text-red-600');
             });
             cContainer.appendChild(btn);
         }
 
-        // Auto-select the first colour
+        // Auto-select the first colour when product loads
         if (cContainer.firstChild) {
             cContainer.firstChild.click();
         }
@@ -1177,25 +1260,32 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderSizeOptions(sizes) {
         const sContainer = document.querySelector('#p-sizes');
-        sContainer.innerHTML = '';
+        sContainer.innerHTML = '';  // Clear existing size buttons
+        // Hidden input stores the selected size value
         const hiddenSizeInput = document.querySelector('#selected-size');
         hiddenSizeInput.value = '';
 
+        // Remove any error styling from label
         const sizeLabel = sContainer.previousElementSibling;
         if (sizeLabel) sizeLabel.classList.remove('text-red-600');
 
+        // Create a button for each available size
         for (const s of sizes) {
             const btn = document.createElement('button');
             btn.className = 'min-w-[3rem] h-10 border-2 border-black font-bold hover:bg-black hover:text-white transition-colors mr-2';
             btn.textContent = s;
             btn.addEventListener('click', () => {
+                // Remove selection styling from all size buttons
                 Array.from(sContainer.children).forEach(b => {
                     b.classList.remove('bg-black', 'text-white');
                     b.classList.add('hover:border-black', 'hover:bg-black');
                 });
+                // Add selection styling to clicked button
                 btn.classList.remove('hover:bg-black');
                 btn.classList.add('bg-black', 'text-white');
+                // Store selected size in hidden input
                 hiddenSizeInput.value = s;
+                // Remove error styling if present
                 if (sizeLabel) sizeLabel.classList.remove('text-red-600');
             });
             sContainer.appendChild(btn);
@@ -1223,17 +1313,19 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} productId - The ID of the product to display
      */
     function renderProductView(productId) {
+        // Find the product by ID (use == for loose comparison in case of type mismatch)
         const p = products.find(i => i.id == productId);
-        if (!p) return;
+        if (!p) return;  // Exit if product not found
 
-        populateProductInfo(p);
-        renderColorOptions(p.color);
-        renderSizeOptions(p.sizes);
+        populateProductInfo(p);  // Fill in product details (name, price, description, etc.)
+        renderColorOptions(p.color);  // Create color selection buttons
+        renderSizeOptions(p.sizes);  // Create size selection buttons
 
+        // Reset quantity input to 1
         const qtyInput = document.querySelector('#p-qty');
         if (qtyInput) qtyInput.value = 1;
 
-        renderRelatedProducts(p);
+        renderRelatedProducts(p);  // Show related products from same category
     }
 
     /**
@@ -1241,7 +1333,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {boolean} redraw - Whether to re-render the browse view
      */
     function clearFilters(redraw = true) {
+        // Reset all filters to empty/null state
         filters = { gender: null, category: [], color: [], size: [] };
+        // Optionally re-render the browse view (default: yes)
         if (redraw) renderBrowseView();
     }
 
