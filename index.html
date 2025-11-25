@@ -106,26 +106,11 @@
                 </div>
             </section>
 
-            <!-- home view featured categories-->
+            <!-- home view featured products-->
             <section>
-                <h2 class="text-xl font-black mb-6 uppercase border-b-2 border-black pb-2">Featured Categories</h2>
-                <div id="home-categories-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="border-2 border-black p-4 text-center">
-                        <div class="aspect-square bg-gray-100 mb-2 border border-black flex items-center justify-center font-bold uppercase">Outerwear</div>
-                        <h3 class="font-bold uppercase">Outerwear</h3>
-                    </div>
-                    <div class="border-2 border-black p-4 text-center">
-                        <div class="aspect-square bg-gray-100 mb-2 border border-black flex items-center justify-center font-bold uppercase">Dresses</div>
-                        <h3 class="font-bold uppercase">Dresses</h3>
-                    </div>
-                    <div class="border-2 border-black p-4 text-center">
-                        <div class="aspect-square bg-gray-100 mb-2 border border-black flex items-center justify-center font-bold uppercase">Bottoms</div>
-                        <h3 class="font-bold uppercase">Bottoms</h3>
-                    </div>
-                    <div class="border-2 border-black p-4 text-center">
-                        <div class="aspect-square bg-gray-100 mb-2 border border-black flex items-center justify-center font-bold uppercase">Accessories</div>
-                        <h3 class="font-bold uppercase">Accessories</h3>
-                    </div>
+                <h2 class="text-xl font-black mb-6 uppercase border-b-2 border-black pb-2">Featured Products</h2>
+                <div id="featured-products-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Featured products will be rendered dynamically -->
                 </div>
             </section>
         </article>
@@ -200,12 +185,12 @@
 
         <!-- product view -->
         <article id="view-product" class="view-section hidden">
-            <nav class="text-sm mb-6 border-b-2 border-black pb-2 font-mono">
-                <a href="#" data-view="home" class="nav-link hover:underline">HOME</a> / 
+            <div class="text-sm mb-6 border-b-2 border-black pb-2 font-mono">
+                <span class="uppercase">HOME</span> / 
                 <span id="crumb-gender" class="uppercase"></span> / 
                 <span id="crumb-category" class="uppercase"></span> / 
                 <span id="crumb-title" class="font-bold uppercase"></span>
-            </nav>
+            </div>
 
             <section class="grid md:grid-cols-2 gap-10 mb-10">
                 <figure class="border-2 border-black p-2">
@@ -287,7 +272,7 @@
             
             <section>
                 <h3 class="font-black uppercase text-lg border-b-2 border-black mb-2 pb-1">Assignment Details</h3>
-                <p class="font-mono text-sm leading-relaxed">
+                <p class="text-sm leading-relaxed">
                     <strong>COMP 3612 - Assignment 2</strong><br>
                     Single-Page Application (SPA)<br>
                     Fall 2025
@@ -299,10 +284,10 @@
 
             <section>
                 <h3 class="font-black uppercase text-lg border-b-2 border-black mb-2 pb-1">Technologies Used</h3>
-                <ul class="list-disc list-inside font-mono text-sm space-y-1">
-                    <li>HTML5 & Semantic Markup</li>
-                    <li>Tailwind CSS (Utility Framework)</li>
-                    <li>Vanilla JavaScript (ES6+)</li>
+                <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>HTML & Semantic Markup</li>
+                    <li>Tailwind CSS</li>
+                    <li>JavaScript </li>
                     <li>LocalStorage API</li>
                     <li>Fetch API</li>
                 </ul>
@@ -310,7 +295,7 @@
 
             <section>
                 <h3 class="font-black uppercase text-lg border-b-2 border-black mb-2 pb-1">Developed By</h3>
-                <div class="font-mono text-sm font-bold">
+                <div class="text-sm font-bold">
                     <p>Darren Law</p>
                     <p class="text-gray-500">ID: 201635245</p>
                 </div>
