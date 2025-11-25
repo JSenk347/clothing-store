@@ -56,6 +56,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cat) cat.textContent = product.category;
         if (price) price.textContent = `$${product.price.toFixed(2)}`;
 
+        const quickAddBtn = clone.querySelector('.btn-quick-add');
+        if (quickAddBtn) {
+            quickAddBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                quickAddToCart(product);
+            });
+        }
+
         if (cardDiv) {
             cardDiv.addEventListener('click', () => {
                 renderProductView(product.id);
@@ -333,6 +341,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Quickly adds a product to cart with default color and size.
+     * @param {Object} product - The product object to add
+     */
+    function quickAddToCart(product) {
+        const defaultColor = product.color[0].name;
+        const defaultSize = product.sizes[0];
+
+        addItemToCart(product, defaultColor, defaultSize, 1);
+        saveCart();
+        showToast(`${product.name} added to cart!`);
+    }
+
+    /**
      * Validates selections and adds the current product to cart.
      */
     function addToCart() {
@@ -396,6 +417,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(container.contains(toast)) container.removeChild(toast);
             }, 500);
         }, 3000);
+    }
+
+    /**
+     * Updates the quantity of a cart item.
+     * @param {number} index - The index of the item in the cart
+     * @param {number} newQty - The new quantity value
+     */
+    function updateCartItemQty(index, newQty) {
+        if (newQty < 1) {
+            removeFromCart(index);
+            return;
+        }
+        cart[index].qty = newQty;
+        saveCart();
+        renderCartView();
     }
 
     /**
@@ -479,6 +515,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Creates a quantity control with +/- buttons.
+     * @param {Object} item - Cart item object
+     * @param {number} index - Item index in cart
+     * @returns {HTMLElement} - The quantity control element
+     */
+    function createQtyControl(item, index) {
+        const col = document.createElement('div');
+        col.className = "flex items-center justify-center gap-2";
+
+        // Mobile label
+        const mobileLabel = document.createElement('span');
+        mobileLabel.className = "md:hidden font-bold mr-2";
+        mobileLabel.textContent = "Qty:";
+        col.appendChild(mobileLabel);
+
+        // Decrease button
+        const decreaseBtn = document.createElement('button');
+        decreaseBtn.className = "w-6 h-6 font-bold text-lg hover:text-gray-500 transition-colors";
+        decreaseBtn.textContent = "-";
+        decreaseBtn.addEventListener('click', () => updateCartItemQty(index, item.qty - 1));
+
+        // Quantity display
+        const qtyDisplay = document.createElement('span');
+        qtyDisplay.className = "w-8 text-center font-mono font-bold";
+        qtyDisplay.textContent = item.qty.toString();
+
+        // Increase button
+        const increaseBtn = document.createElement('button');
+        increaseBtn.className = "w-6 h-6 font-bold text-lg hover:text-gray-500 transition-colors";
+        increaseBtn.textContent = "+";
+        increaseBtn.addEventListener('click', () => updateCartItemQty(index, item.qty + 1));
+
+        col.appendChild(decreaseBtn);
+        col.appendChild(qtyDisplay);
+        col.appendChild(increaseBtn);
+
+        return col;
+    }
+
+    /**
      * Creates a single cart item row.
      * @param {Object} item - Cart item object
      * @param {number} index - Item index for removal
@@ -491,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
         row.appendChild(createItemInfoColumn(item, index));
         row.appendChild(createCartColumn("flex md:block gap-2 text-sm font-mono uppercase", `${item.color} / ${item.size}`, "Variant: "));
         row.appendChild(createCartColumn("text-right font-mono", `$${item.price.toFixed(2)}`, "Price:"));
-        row.appendChild(createCartColumn("text-center font-mono", item.qty.toString(), "Qty:"));
+        row.appendChild(createQtyControl(item, index));
         row.appendChild(createCartColumn("text-right font-bold font-mono", `$${(item.price * item.qty).toFixed(2)}`, "Subtotal:"));
 
         return row;
@@ -1089,7 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cContainer.appendChild(btn);
         }
 
-        // Auto-select the first color
+        // Auto-select the first colour
         if (cContainer.firstChild) {
             cContainer.firstChild.click();
         }
