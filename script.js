@@ -1088,6 +1088,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             cContainer.appendChild(btn);
         }
+
+        // Auto-select the first color
+        if (cContainer.firstChild) {
+            cContainer.firstChild.click();
+        }
     }
 
     /**
