@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Updates the cart count badge in the header.
      */
     function updateCartCount() {
-        const count = cart.reduce((acc, item) => acc + item.qty, 0);
+        const count = cart.reduce((acc, item) => acc + item.qty, 0); // https://www.w3schools.com/jsref/jsref_reduce.asp for .reduce()
         const badge = document.querySelector('#cart-count');
         if (badge) {
             badge.textContent = count;
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!product) return;
 
         const qtyInput = document.querySelector('#p-qty');
-        const qty = parseInt(qtyInput.value) || 1;
+        const qty = parseInt(qtyInput.value) || 1; // https://www.w3schools.com/jsref/jsref_parseint.asp
 
         addItemToCart(product, validation.colorInput.value, validation.sizeInput.value, qty);
         saveCart();
@@ -637,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         box.querySelector('#cart-dest').addEventListener('change', updateTotals);
         box.querySelector('#cart-ship').addEventListener('change', updateTotals);
-        setTimeout(updateTotals, 0);
+        updateTotals();
 
         return box;
     }
