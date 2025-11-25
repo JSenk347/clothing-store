@@ -913,7 +913,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Array} - Sorted unique values
      */
     function getUniqueValues(extractor) {
-        const values = [];
+        const values = []; 
         for (const p of products) {
             const extracted = extractor(p);
             // If extractor returns an array, loop through it
@@ -940,7 +940,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} type - Filter type (gender/category)
      * @param {string} value - Filter value
      * @param {string} label - Display label
-     * @returns {DocumentFragment} - Cloned checkbox template
+     * @returns {CheckboxTmpl} - Cloned checkbox template
      */
     function createFilterCheckbox(type, value, label) {
         const tmplCheckbox = document.querySelector('#tmpl-checkbox');
