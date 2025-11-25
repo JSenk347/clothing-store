@@ -101,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * Fetches product data from API or LocalStorage cache.
      */
     async function fetchData() {
-        console.log(`Attempting to fetch data...`);
         try {
             // Check if we already have products cached in LocalStorage
             const productsStr = localStorage.getItem("products");
@@ -113,14 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = await resp.json();  // Parse JSON response
                     localStorage.setItem("products", JSON.stringify(data));  // Cache for next time
                     products = data;  // Store in global variable
-                    console.log("Data loaded from API");
                 } else {
                     console.error("Error fetching data", resp.statusText);
                 }
             } else {
                 // Cache exists - parse and use it
                 products = JSON.parse(productsStr);
-                console.log("Data loaded from LocalStorage");
             }
         } catch (error) {
             console.error("Error fetching data", error.message);
