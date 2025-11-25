@@ -13,6 +13,41 @@ document.addEventListener('DOMContentLoaded', () => {
         await fetchData();
         loadCart(); 
         setupEventListeners();
+        renderFeaturedProducts();
+    }
+
+    // --- Render Featured Products (first 4 products) ---
+    function renderFeaturedProducts() {
+        const container = document.querySelector('#featured-products-container');
+        if (!container || products.length === 0) return;
+
+        container.innerHTML = '';
+        const template = document.querySelector('#tmpl-product-card');
+        const featuredProducts = products.slice(0, 4);
+
+        for (const p of featuredProducts) {
+            const clone = template.content.cloneNode(true);
+            const cardDiv = clone.querySelector('.product-card');
+
+            const placeholder = clone.querySelector('.card-placeholder');
+            const title = clone.querySelector('.card-title');
+            const cat = clone.querySelector('.card-category');
+            const price = clone.querySelector('.card-price');
+
+            if (placeholder) placeholder.textContent = p.name;
+            if (title) title.textContent = p.name;
+            if (cat) cat.textContent = p.category;
+            if (price) price.textContent = `$${p.price.toFixed(2)}`;
+
+            if (cardDiv) {
+                cardDiv.addEventListener('click', () => {
+                    renderProductView(p.id);
+                    switchView('product');
+                });
+            }
+
+            container.appendChild(clone);
+        }
     }
 
     // --- Data Fetching ---
