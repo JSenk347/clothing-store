@@ -14,7 +14,9 @@ const DATA_URL = 'https://gist.githubusercontent.com/rconnolly/d37a491b50203d66d
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Global State ---
+    /* =========================================
+       GLOBAL STATE
+       ========================================= */
     let products = [];
     let cart = []; 
     let filters = { gender: null, category: [], color: [], size: [] };
@@ -79,7 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Data Fetching ---
+    /**
+     * Fetches product data from API or LocalStorage cache.
+     */
     async function fetchData() {
         console.log(`Attempting to fetch data...`);
         try {
@@ -213,7 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- View Switching ---
+    /**
+     * Switches the visible view section.
+     * @param {string} viewId - The ID suffix of the view to display
+     */
     function switchView(viewId) {
         const views = document.querySelectorAll('.view-section');
 
@@ -351,7 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(`${product.name} added to cart!`);
     }
 
-    // Logic to remove an item by index
+    /**
+     * Removes an item from the cart by index.
+     * @param {number} index - The index of the item to remove
+     */
     function removeFromCart(index) {
         cart.splice(index, 1);
         saveCart();
@@ -388,7 +398,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // Creates the header row for the cart list
+    /**
+     * Creates the header row for the cart list.
+     * @returns {HTMLElement} - The header row element
+     */
     function createCartHeaderRow() {
         const row = document.createElement('div');
         row.className = "hidden md:grid grid-cols-6 gap-4 border-b-2 border-black pb-2 font-bold uppercase text-sm mb-4";
@@ -525,7 +538,11 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function createSummaryRow(label, id, isBold = false) {
         const div = document.createElement('div');
-        div.className = `flex justify-between ${isBold ? 'text-lg font-black border-t-2 border-black pt-2 mt-2' : ''}`;
+        let boldClasses = '';
+        if (isBold) {
+            boldClasses = 'text-lg font-black border-t-2 border-black pt-2 mt-2';
+        }
+        div.className = `flex justify-between ${boldClasses}`;
 
         const lbl = document.createElement('span');
         lbl.textContent = label;
@@ -606,7 +623,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const dest = box.querySelector('#cart-dest').value;
             const method = box.querySelector('#cart-ship').value;
             const shippingCost = calculateShipping(merchTotal, dest, method);
-            const tax = dest === 'ca' ? merchTotal * 0.05 : 0;
+            let tax = 0;
+            if (dest === 'ca') {
+                tax = merchTotal * 0.05;
+            }
             const grandTotal = merchTotal + shippingCost + tax;
 
             box.querySelector('#summary-merch').textContent = `$${merchTotal.toFixed(2)}`;
@@ -714,15 +734,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* =========================================
-       EXISTING BROWSE/PRODUCT LOGIC
+       BROWSE & PRODUCT VIEW
        ========================================= */
 
+    /**
+     * Renders the gender-specific category view.
+     * @param {string} gender - The gender filter (mens/womens)
+     */
     function renderGenderView(gender) {
         const genderProducts = products.filter(p => p.gender === gender);
         const categories = [...new Set(genderProducts.map(p => p.category))];
 
         const titleElement = document.querySelector('#gender-title');
-        titleElement.textContent = gender === 'mens' ? "Men's Collection" : "Women's Collection";
+        if (gender === 'mens') {
+            titleElement.textContent = "Men's Collection";
+        } else {
+            titleElement.textContent = "Women's Collection";
+        }
 
         const container = document.querySelector('#gender-categories');
         container.innerHTML = '';
@@ -738,6 +766,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Renders the browse view with filters and product grid.
+     */
     function renderBrowseView() {
         populateFilterSidebars();
         applyFilters();
@@ -869,7 +900,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const colors = getUniqueValues(p => p.color.map(c => c.name));
         for (const c of colors) {
             const sampleProd = products.find(p => p.color.find(col => col.name === c));
-            const hex = sampleProd ? sampleProd.color.find(col => col.name === c).hex : '#ccc';
+            let hex = '#ccc';
+            if (sampleProd) {
+                hex = sampleProd.color.find(col => col.name === c).hex;
+            }
             colorContainer.appendChild(createColorFilterButton(c, hex));
         }
 
@@ -882,6 +916,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Updates the active filter tags display.
+     */
     function updateActiveFilterTags() {
         const activeContainer = document.querySelector('#active-filters');
         activeContainer.innerHTML = '';
@@ -910,6 +947,10 @@ document.addEventListener('DOMContentLoaded', () => {
         filters.size.forEach(c => createTag(c, 'size'));
     }
 
+    /**
+     * Handles filter checkbox changes.
+     * @param {HTMLInputElement} input - The changed checkbox input
+     */
     function handleFilterChange(input) {
         const type = input.dataset.filterType;
 
@@ -1111,11 +1152,17 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRelatedProducts(p);
     }
 
+    /**
+     * Resets all filters to default state.
+     * @param {boolean} redraw - Whether to re-render the browse view
+     */
     function clearFilters(redraw = true) {
         filters = { gender: null, category: [], color: [], size: [] };
         if (redraw) renderBrowseView();
     }
 
-    // --- Start App ---
+    /* =========================================
+       APPLICATION START
+       ========================================= */
     init();
 });
